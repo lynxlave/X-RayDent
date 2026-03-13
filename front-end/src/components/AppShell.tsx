@@ -27,11 +27,21 @@ const cannedReplies = [
 ];
 
 type ThemeMode = "light" | "dark";
+
 type ChatMessage = {
   id: string;
   author: "user" | "bot";
   text: string;
 };
+
+function splitFullName(fullName?: string | null) {
+  const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
+  return {
+    lastName: parts[0] ?? "",
+    firstName: parts[1] ?? "",
+    middleName: parts.slice(2).join(" "),
+  };
+}
 
 function SettingsIcon() {
   return (
@@ -88,6 +98,14 @@ export function AppShell() {
   });
   const [telemedMessage, setTelemedMessage] = useState("");
   const [telemedSuccess, setTelemedSuccess] = useState("");
+  const [profileLastName, setProfileLastName] = useState("");
+  const [profileFirstName, setProfileFirstName] = useState("");
+  const [profileMiddleName, setProfileMiddleName] = useState("");
+  const [profilePhone, setProfilePhone] = useState("+7");
+  const [newPassword, setNewPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -100,6 +118,21 @@ export function AppShell() {
     setIsSettingsOpen(false);
     setIsChatOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isSettingsOpen) {
+      return;
+    }
+    const parts = splitFullName(session?.full_name);
+    setProfileLastName(parts.lastName);
+    setProfileFirstName(parts.firstName);
+    setProfileMiddleName(parts.middleName);
+    setProfilePhone(session?.phone || "+7");
+    setNewPassword("");
+    setRepeatPassword("");
+    setProfileError("");
+    setProfileSuccess("");
+  }, [isSettingsOpen, session]);
 
   useEffect(() => {
     if (!session || !session.refresh_token) {
@@ -131,6 +164,50 @@ export function AppShell() {
     }
     setTelemedSuccess("Запрос на телемедицинскую консультацию отправлен.");
     setTelemedMessage("");
+  }
+
+  function saveProfileSettings(event: FormEvent) {
+    event.preventDefault();
+    if (!session) {
+      return;
+    }
+    if (!profileLastName.trim()) {
+      setProfileError("Введите фамилию.");
+      setProfileSuccess("");
+      return;
+    }
+    if (!profileFirstName.trim()) {
+      setProfileError("Введите имя.");
+      setProfileSuccess("");
+      return;
+    }
+    if (profilePhone.replace(/\D/g, "").length < 11) {
+      setProfileError("Введите корректный номер телефона.");
+      setProfileSuccess("");
+      return;
+    }
+    if (newPassword || repeatPassword) {
+      if (newPassword.length < 8) {
+        setProfileError("Новый пароль должен быть не короче 8 символов.");
+        setProfileSuccess("");
+        return;
+      }
+      if (newPassword !== repeatPassword) {
+        setProfileError("Пароли не совпадают.");
+        setProfileSuccess("");
+        return;
+      }
+    }
+
+    setSession({
+      ...session,
+      full_name: [profileLastName.trim(), profileFirstName.trim(), profileMiddleName.trim()].filter(Boolean).join(" "),
+      phone: profilePhone.trim(),
+    });
+    setNewPassword("");
+    setRepeatPassword("");
+    setProfileError("");
+    setProfileSuccess("Данные профиля обновлены.");
   }
 
   function sendChatMessage(event: FormEvent) {
@@ -185,12 +262,7 @@ export function AppShell() {
 
       {showHeader ? (
         <>
-          <button
-            type="button"
-            className="chat-fab"
-            aria-label="Открыть чат"
-            onClick={() => setIsChatOpen((current) => !current)}
-          >
+          <button type="button" className="chat-fab" aria-label="Открыть чат" onClick={() => setIsChatOpen((current) => !current)}>
             <ChatIcon />
           </button>
           {isChatOpen ? (
@@ -202,7 +274,7 @@ export function AppShell() {
                 </div>
                 <button type="button" className="icon-button chat-close" aria-label="Закрыть чат" onClick={() => setIsChatOpen(false)}>
                   <span className="modal-close" aria-hidden="true">
-                    ×
+                    x
                   </span>
                 </button>
               </div>
@@ -214,13 +286,7 @@ export function AppShell() {
                 ))}
               </div>
               <form className="chat-form" onSubmit={sendChatMessage}>
-                <textarea
-                  className="textarea chat-input"
-                  rows={3}
-                  placeholder="Напишите сообщение"
-                  value={chatDraft}
-                  onChange={(event) => setChatDraft(event.target.value)}
-                />
+                <textarea className="textarea chat-input" rows={3} placeholder="Напишите сообщение" value={chatDraft} onChange={(event) => setChatDraft(event.target.value)} />
                 <button type="submit" className="button">
                   Отправить
                 </button>
@@ -237,9 +303,44 @@ export function AppShell() {
               <h2>Настройки</h2>
               <button type="button" className="icon-button" aria-label="Закрыть" onClick={() => setIsSettingsOpen(false)}>
                 <span className="modal-close" aria-hidden="true">
-                  ×
+                  x
                 </span>
               </button>
+            </div>
+
+            <div className="settings-block">
+              <h3>Профиль</h3>
+              <form className="form" onSubmit={saveProfileSettings}>
+                <label className="field-group">
+                  <span className="field-label">Фамилия</span>
+                  <input className="input" value={profileLastName} onChange={(event) => { setProfileLastName(event.target.value); setProfileError(""); setProfileSuccess(""); }} />
+                </label>
+                <label className="field-group">
+                  <span className="field-label">Имя</span>
+                  <input className="input" value={profileFirstName} onChange={(event) => { setProfileFirstName(event.target.value); setProfileError(""); setProfileSuccess(""); }} />
+                </label>
+                <label className="field-group">
+                  <span className="field-label">Отчество</span>
+                  <input className="input" value={profileMiddleName} onChange={(event) => { setProfileMiddleName(event.target.value); setProfileError(""); setProfileSuccess(""); }} />
+                </label>
+                <label className="field-group">
+                  <span className="field-label">Номер телефона</span>
+                  <input className="input" value={profilePhone} onChange={(event) => { setProfilePhone(event.target.value); setProfileError(""); setProfileSuccess(""); }} />
+                </label>
+                <label className="field-group">
+                  <span className="field-label">Новый пароль</span>
+                  <input className="input" type="password" value={newPassword} onChange={(event) => { setNewPassword(event.target.value); setProfileError(""); setProfileSuccess(""); }} placeholder="Минимум 8 символов" />
+                </label>
+                <label className="field-group">
+                  <span className="field-label">Повторите пароль</span>
+                  <input className="input" type="password" value={repeatPassword} onChange={(event) => { setRepeatPassword(event.target.value); setProfileError(""); setProfileSuccess(""); }} placeholder="Повторите новый пароль" />
+                </label>
+                <button type="submit" className="button">
+                  Сохранить изменения
+                </button>
+                {profileSuccess ? <div className="form-success">{profileSuccess}</div> : null}
+                {profileError ? <div className="form-error">{profileError}</div> : null}
+              </form>
             </div>
 
             <div className="settings-block">

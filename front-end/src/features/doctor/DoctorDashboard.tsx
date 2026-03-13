@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { doctorApi } from "../../lib/api";
 import { useSessionStore } from "../../lib/store";
 import type { DoctorSpecialty } from "../../lib/types";
-import { loadDoctorPatients, saveDoctorPatients, type DoctorPatientRecord } from "./patientRegistry";
+import type { DoctorPatientRecord } from "./patientRegistry";
 
 const specialtyLabels: Record<DoctorSpecialty, string> = {
   "stomatolog-terapevt": "стоматолог-терапевт",
@@ -26,18 +26,10 @@ function formatPatientPhone(value: string): string {
   const limited = normalized.slice(0, 10);
 
   let result = "+7";
-  if (limited.length > 0) {
-    result += ` (${limited.slice(0, 3)}`;
-  }
-  if (limited.length >= 4) {
-    result += `) ${limited.slice(3, 6)}`;
-  }
-  if (limited.length >= 7) {
-    result += `-${limited.slice(6, 8)}`;
-  }
-  if (limited.length >= 9) {
-    result += `-${limited.slice(8, 10)}`;
-  }
+  if (limited.length > 0) result += ` (${limited.slice(0, 3)}`;
+  if (limited.length >= 4) result += `) ${limited.slice(3, 6)}`;
+  if (limited.length >= 7) result += `-${limited.slice(6, 8)}`;
+  if (limited.length >= 9) result += `-${limited.slice(8, 10)}`;
   return result;
 }
 
@@ -52,6 +44,7 @@ export function DoctorDashboard() {
   const [newPatientMiddleName, setNewPatientMiddleName] = useState("");
   const [newPatientBirthDate, setNewPatientBirthDate] = useState("");
   const [newPatientPhone, setNewPatientPhone] = useState("+7");
+  const [newPatientEmail, setNewPatientEmail] = useState("");
   const [newPatientError, setNewPatientError] = useState("");
   const [isCreatingPatient, setIsCreatingPatient] = useState(false);
 
@@ -59,47 +52,35 @@ export function DoctorDashboard() {
   const doctorTitle = session?.full_name || "Кабинет врача";
 
   useEffect(() => {
-    const storedPatients = loadDoctorPatients();
     doctorApi.getPatients().then((items) => {
-      const mappedPatients = items.map((patient) => ({
-        id: patient.id,
-        fullName: patient.full_name,
-        birthDate: patient.birth_date,
-        phone: patient.phone,
-        status:
-          patient.status === "completed"
-            ? "Готово"
-            : patient.status === "processing"
-              ? "В обработке"
-              : patient.status === "rejected"
-                ? "Снимок отклонен"
-                : "Активен",
-        studyFileName: null,
-        comments:
-          patient.id === "patient-1"
-            ? ["Контрольный осмотр через 6 месяцев."]
-            : patient.id === "patient-2"
-              ? ["Нужно дождаться завершения анализа снимка."]
-              : patient.id === "patient-3"
-                ? ["Рекомендована повторная загрузка снимка лучшего качества."]
-                : patient.id === "patient-4"
-                  ? ["Динамика стабильная, жалоб на текущий момент нет."]
-                  : [],
-      }));
-      const mergedPatients = [
-        ...storedPatients,
-        ...mappedPatients.filter((patient) => !storedPatients.some((stored) => stored.id === patient.id)),
-      ];
-      setPatients(mergedPatients);
-      saveDoctorPatients(mergedPatients);
+      setPatients(
+        items.map((patient) => ({
+          id: patient.id,
+          fullName: patient.full_name,
+          birthDate: patient.birth_date,
+          phone: patient.phone,
+          email: patient.email ?? null,
+          status:
+            patient.status === "completed"
+              ? "Готово"
+              : patient.status === "processing"
+                ? "В обработке"
+                : patient.status === "rejected"
+                  ? "Снимок отклонен"
+                  : "Активен",
+          latestComment: patient.latest_comment,
+          latestCommentAuthor: patient.latest_comment_author,
+          studyFileName: patient.study_file_name ?? null,
+          studyUploadedAt: patient.study_uploaded_at ?? null,
+          studyProcessedAt: patient.study_processed_at ?? null,
+        })),
+      );
     });
   }, []);
 
   const filteredPatients = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
-    if (!normalizedSearch) {
-      return patients;
-    }
+    if (!normalizedSearch) return patients;
     return patients.filter((patient) => patient.fullName.toLowerCase().includes(normalizedSearch));
   }, [patients, search]);
 
@@ -109,28 +90,17 @@ export function DoctorDashboard() {
     setNewPatientMiddleName("");
     setNewPatientBirthDate("");
     setNewPatientPhone("+7");
+    setNewPatientEmail("");
     setNewPatientError("");
     setIsNewPatientOpen(true);
   }
 
   async function startNewPatientFlow(event: FormEvent) {
     event.preventDefault();
-    if (!newPatientLastName.trim()) {
-      setNewPatientError("Введите фамилию пациента.");
-      return;
-    }
-    if (!newPatientFirstName.trim()) {
-      setNewPatientError("Введите имя пациента.");
-      return;
-    }
-    if (!newPatientBirthDate) {
-      setNewPatientError("Укажите дату рождения пациента.");
-      return;
-    }
-    if (newPatientPhone.replace(/\D/g, "").length < 11) {
-      setNewPatientError("Введите номер телефона пациента.");
-      return;
-    }
+    if (!newPatientLastName.trim()) return setNewPatientError("Введите фамилию пациента.");
+    if (!newPatientFirstName.trim()) return setNewPatientError("Введите имя пациента.");
+    if (!newPatientBirthDate) return setNewPatientError("Укажите дату рождения пациента.");
+    if (newPatientPhone.replace(/\D/g, "").length < 11) return setNewPatientError("Введите номер телефона пациента.");
 
     const fullName = [newPatientLastName.trim(), newPatientFirstName.trim(), newPatientMiddleName.trim()].filter(Boolean).join(" ");
 
@@ -142,28 +112,25 @@ export function DoctorDashboard() {
         full_name: fullName,
         birth_date: newPatientBirthDate,
         phone: newPatientPhone,
+        email: newPatientEmail.trim() || null,
       });
 
-      const nextPatient: DoctorPatientRecord = {
-        id: createdPatient.id,
-        fullName: createdPatient.full_name,
-        birthDate: createdPatient.birth_date,
-        phone: createdPatient.phone,
-        status:
-          createdPatient.status === "completed"
-            ? "Готово"
-            : createdPatient.status === "processing"
-              ? "В обработке"
-              : createdPatient.status === "rejected"
-                ? "Снимок отклонен"
-                : "Активен",
-        studyFileName: null,
-        comments: [],
-      };
-
-      const nextPatients = [nextPatient, ...patients];
-      setPatients(nextPatients);
-      saveDoctorPatients(nextPatients);
+      setPatients((current) => [
+        {
+          id: createdPatient.id,
+          fullName: createdPatient.full_name,
+          birthDate: createdPatient.birth_date,
+          phone: createdPatient.phone,
+          email: createdPatient.email ?? null,
+          status: "Активен",
+          latestComment: null,
+          latestCommentAuthor: null,
+          studyFileName: null,
+          studyUploadedAt: null,
+          studyProcessedAt: null,
+        },
+        ...current,
+      ]);
       setIsNewPatientOpen(false);
       navigate(`/doctor/intake/${createdPatient.id}`);
     } catch (caughtError) {
@@ -174,7 +141,7 @@ export function DoctorDashboard() {
   }
 
   return (
-    <div className="grid">
+    <div className="grid doctor-dashboard">
       <section className="card hero">
         <span className="badge">{doctorBadge}</span>
         <h1>{doctorTitle}</h1>
@@ -203,21 +170,13 @@ export function DoctorDashboard() {
                 </div>
                 <div className="patient-comment">
                   <span className="muted patient-comment-label">Последний комментарий</span>
-                  <span>{patient.comments?.length ? patient.comments[patient.comments.length - 1] : "Комментариев пока нет"}</span>
+                  <span>{patient.latestComment || "Комментариев пока нет"}</span>
                 </div>
                 <div className="patient-actions">
-                  <button
-                    type="button"
-                    className="button secondary patient-action-button"
-                    onClick={() => navigate(`/doctor/patients/${patient.id}`)}
-                  >
+                  <button type="button" className="button secondary patient-action-button" onClick={() => navigate(`/doctor/patients/${patient.id}`)}>
                     История
                   </button>
-                  <button
-                    type="button"
-                    className="button patient-action-button"
-                    onClick={() => navigate(`/doctor/intake/${patient.id}`)}
-                  >
+                  <button type="button" className="button patient-action-button" onClick={() => navigate(`/doctor/intake/${patient.id}`)}>
                     Загрузить снимок
                   </button>
                 </div>
@@ -236,7 +195,7 @@ export function DoctorDashboard() {
               <h2>Новый пациент</h2>
               <button type="button" className="icon-button" aria-label="Закрыть" onClick={() => setIsNewPatientOpen(false)}>
                 <span className="modal-close" aria-hidden="true">
-                  ×
+                  x
                 </span>
               </button>
             </div>
@@ -244,65 +203,29 @@ export function DoctorDashboard() {
             <form className="form" onSubmit={startNewPatientFlow}>
               <label className="field-group">
                 <span className="field-label">Фамилия *</span>
-                <input
-                  className="input"
-                  value={newPatientLastName}
-                  onChange={(event) => {
-                    setNewPatientLastName(event.target.value);
-                    setNewPatientError("");
-                  }}
-                  placeholder="Введите фамилию"
-                />
+                <input className="input" value={newPatientLastName} onChange={(event) => { setNewPatientLastName(event.target.value); setNewPatientError(""); }} placeholder="Введите фамилию" />
               </label>
               <label className="field-group">
                 <span className="field-label">Имя *</span>
-                <input
-                  className="input"
-                  value={newPatientFirstName}
-                  onChange={(event) => {
-                    setNewPatientFirstName(event.target.value);
-                    setNewPatientError("");
-                  }}
-                  placeholder="Введите имя"
-                />
+                <input className="input" value={newPatientFirstName} onChange={(event) => { setNewPatientFirstName(event.target.value); setNewPatientError(""); }} placeholder="Введите имя" />
               </label>
               <label className="field-group">
                 <span className="field-label">Отчество</span>
-                <input
-                  className="input"
-                  value={newPatientMiddleName}
-                  onChange={(event) => {
-                    setNewPatientMiddleName(event.target.value);
-                    setNewPatientError("");
-                  }}
-                  placeholder="Введите отчество при наличии"
-                />
+                <input className="input" value={newPatientMiddleName} onChange={(event) => { setNewPatientMiddleName(event.target.value); setNewPatientError(""); }} placeholder="Введите отчество при наличии" />
               </label>
               <label className="field-group">
                 <span className="field-label">Дата рождения *</span>
-                <input
-                  className="input"
-                  type="date"
-                  value={newPatientBirthDate}
-                  onChange={(event) => {
-                    setNewPatientBirthDate(event.target.value);
-                    setNewPatientError("");
-                  }}
-                />
+                <input className="input" type="date" value={newPatientBirthDate} onChange={(event) => { setNewPatientBirthDate(event.target.value); setNewPatientError(""); }} />
               </label>
               <label className="field-group">
                 <span className="field-label">Номер телефона *</span>
-                <input
-                  className="input"
-                  value={newPatientPhone}
-                  onChange={(event) => {
-                    setNewPatientPhone(formatPatientPhone(event.target.value));
-                    setNewPatientError("");
-                  }}
-                  placeholder="+7 (___) ___-__-__"
-                />
+                <input className="input" value={newPatientPhone} onChange={(event) => { setNewPatientPhone(formatPatientPhone(event.target.value)); setNewPatientError(""); }} placeholder="+7 (___) ___-__-__" />
               </label>
-              <p className="muted form-hint">Поля, отмеченные *, обязательны. Отчество заполняется при наличии.</p>
+              <label className="field-group">
+                <span className="field-label">Почта</span>
+                <input className="input" type="email" value={newPatientEmail} onChange={(event) => { setNewPatientEmail(event.target.value); setNewPatientError(""); }} placeholder="example@mail.ru" />
+              </label>
+              <p className="muted form-hint">Поля, отмеченные *, обязательны. Отчество и почта заполняются при наличии.</p>
               <button type="submit" className="button" disabled={isCreatingPatient}>
                 {isCreatingPatient ? "Сохраняем..." : "Продолжить"}
               </button>

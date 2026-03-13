@@ -1,9 +1,22 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import { studiesApi } from "../../lib/api";
+import { doctorApi, studiesApi } from "../../lib/api";
 import { useSessionStore } from "../../lib/store";
 import type { Report } from "../../lib/types";
-import { loadDoctorPatients, saveDoctorPatients, type DoctorPatientRecord } from "./patientRegistry";
+
+type IntakeLocationState = {
+  fullName?: string;
+  phone?: string;
+};
+
+const complaintOptions = [
+  "на верхней челюсти справа",
+  "на верхней челюсти слева",
+  "на нижней челюсти справа",
+  "на нижней челюсти слева",
+  "нет жалоб",
+  "просто диагностика",
+];
 
 function formatPhoneInput(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -11,18 +24,10 @@ function formatPhoneInput(value: string): string {
   const limited = normalized.slice(0, 10);
 
   let result = "+7";
-  if (limited.length > 0) {
-    result += ` (${limited.slice(0, 3)}`;
-  }
-  if (limited.length >= 4) {
-    result += `) ${limited.slice(3, 6)}`;
-  }
-  if (limited.length >= 7) {
-    result += `-${limited.slice(6, 8)}`;
-  }
-  if (limited.length >= 9) {
-    result += `-${limited.slice(8, 10)}`;
-  }
+  if (limited.length > 0) result += ` (${limited.slice(0, 3)}`;
+  if (limited.length >= 4) result += `) ${limited.slice(3, 6)}`;
+  if (limited.length >= 7) result += `-${limited.slice(6, 8)}`;
+  if (limited.length >= 9) result += `-${limited.slice(8, 10)}`;
   return result;
 }
 
@@ -67,24 +72,32 @@ export function DoctorStudyFlowPage() {
   const location = useLocation();
   const session = useSessionStore((state) => state.session);
   const { patientId } = useParams();
-  const isNewPatient = patientId === "new";
-  const existingPatient = useMemo(
-    () => (patientId && patientId !== "new" ? loadDoctorPatients().find((patient) => patient.id === patientId) ?? null : null),
-    [patientId],
-  );
-  const intakeState = (location.state as { fullName?: string; birthDate?: string; phone?: string } | null) ?? null;
-
-  const [phone, setPhone] = useState(existingPatient ? existingPatient.phone : intakeState?.phone ?? "+7");
+  const intakeState = (location.state as IntakeLocationState | null) ?? null;
+  const [patientName, setPatientName] = useState(intakeState?.fullName || "");
+  const [phone, setPhone] = useState(intakeState?.phone ?? "+7");
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
-  const [complaints, setComplaints] = useState("");
+  const [complaints, setComplaints] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   const [resultStatus, setResultStatus] = useState("");
   const [report, setReport] = useState<Report | null>(null);
   const [pdfUrl, setPdfUrl] = useState("");
+
+  useEffect(() => {
+    if (!patientId) return;
+    doctorApi
+      .getPatientCard(patientId)
+      .then((card) => {
+        setPatientName(card.patient.full_name);
+        setPhone(card.patient.phone || intakeState?.phone || "+7");
+      })
+      .catch(() => {
+        setPatientName(intakeState?.fullName || "");
+      });
+  }, [intakeState?.fullName, intakeState?.phone, patientId]);
 
   useEffect(() => {
     return () => {
@@ -94,12 +107,19 @@ export function DoctorStudyFlowPage() {
     };
   }, [pdfUrl]);
 
-  if (session?.role !== "doctor") {
+  if (session?.role !== "doctor" || !patientId) {
     return <Navigate to="/" replace />;
   }
 
-  if (!isNewPatient && !existingPatient) {
-    return <Navigate to="/" replace />;
+  function toggleComplaint(value: string) {
+    setComplaints((current) => {
+      if (value === "нет жалоб" || value === "просто диагностика") {
+        return current.includes(value) ? [] : [value];
+      }
+      const next = current.filter((item) => item !== "нет жалоб" && item !== "просто диагностика");
+      return next.includes(value) ? next.filter((item) => item !== value) : [...next, value];
+    });
+    setError("");
   }
 
   async function sendCode() {
@@ -125,12 +145,13 @@ export function DoctorStudyFlowPage() {
   async function processStudy(event: FormEvent) {
     event.preventDefault();
     setError("");
-    if (!complaints.trim()) {
-      setError("Введите жалобы пациента.");
+
+    if (!complaints.length) {
+      setError("Выберите жалобы пациента или вариант диагностики.");
       return;
     }
     if (!file) {
-      setError("Загрузите ОПТГ.");
+      setError("Загрузите файл ОПТГ.");
       return;
     }
 
@@ -138,40 +159,24 @@ export function DoctorStudyFlowPage() {
     setResultStatus("");
     setReport(null);
 
-    await new Promise((resolve) => window.setTimeout(resolve, 1500));
-
     try {
-      const result = await studiesApi.process(file.name, complaints.split(",").map((item) => item.trim()).filter(Boolean));
+      await doctorApi.recordStudyEvent(patientId, {
+        file_name: file.name,
+        event: "uploaded",
+      });
+
+      await new Promise((resolve) => window.setTimeout(resolve, 1500));
+
+      const result = await studiesApi.process(file.name, complaints);
+
+      await doctorApi.recordStudyEvent(patientId, {
+        file_name: file.name,
+        event: "processed",
+      });
+
       setResultStatus(result.analysis.result.status === "rejected" ? "Снимок отклонен" : "Снимок обработан");
       setReport(result.report.report);
       setPdfUrl(createPdfUrl(result.report.report));
-
-      const patients = loadDoctorPatients();
-      if (isNewPatient) {
-        const nextPatient: DoctorPatientRecord = {
-          id: `patient-${Date.now()}`,
-          fullName: intakeState?.fullName || `Пациент ${phone.slice(-4)}`,
-          birthDate: intakeState?.birthDate || "",
-          phone,
-          status: result.analysis.result.status === "rejected" ? "Снимок отклонен" : "Снимок загружен",
-          studyFileName: file.name,
-          comments: [],
-        };
-        saveDoctorPatients([nextPatient, ...patients]);
-      } else if (existingPatient) {
-        saveDoctorPatients(
-          patients.map((patient) =>
-            patient.id === existingPatient.id
-              ? {
-                  ...patient,
-                  phone,
-                  status: result.analysis.result.status === "rejected" ? "Снимок отклонен" : "Снимок загружен",
-                  studyFileName: file.name,
-                }
-              : patient,
-          ),
-        );
-      }
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Не удалось обработать снимок.");
     } finally {
@@ -182,15 +187,20 @@ export function DoctorStudyFlowPage() {
   return (
     <div className="grid">
       <section className="card hero">
-        <span className="badge">{isNewPatient ? "Новый пациент" : "Загрузка снимка"}</span>
-        <h1>{isNewPatient ? intakeState?.fullName || "Новый кейс пациента" : existingPatient?.fullName}</h1>
+        <span className="badge">Загрузка снимка</span>
+        <h1>{patientName || "Карточка пациента"}</h1>
       </section>
 
       <section className="card flow-card">
         <div className="flow-step">
           <h3>1. Номер телефона</h3>
           <div className="flow-row">
-            <input className="input" value={phone} onChange={(event) => setPhone(formatPhoneInput(event.target.value))} placeholder="Номер телефона" />
+            <input
+              className="input"
+              value={phone}
+              onChange={(event) => setPhone(formatPhoneInput(event.target.value))}
+              placeholder="Номер телефона"
+            />
             <button type="button" className="button" onClick={sendCode}>
               Отправить код
             </button>
@@ -201,7 +211,12 @@ export function DoctorStudyFlowPage() {
           <form className="flow-step" onSubmit={verifyCode}>
             <h3>2. Подтверждение кода</h3>
             <div className="flow-row">
-              <input className="input" value={code} onChange={(event) => setCode(event.target.value)} placeholder="Введите код 0000" />
+              <input
+                className="input"
+                value={code}
+                onChange={(event) => setCode(event.target.value)}
+                placeholder="Введите код 0000"
+              />
               <button type="submit" className="button">
                 Подтвердить код
               </button>
@@ -211,15 +226,44 @@ export function DoctorStudyFlowPage() {
 
         {codeVerified ? (
           <form className="flow-step" onSubmit={processStudy}>
-            <h3>3. Жалобы и ОПТГ</h3>
-            <textarea
-              className="textarea"
-              rows={4}
-              value={complaints}
-              onChange={(event) => setComplaints(event.target.value)}
-              placeholder="Введите жалобы пациента"
-            />
-            <input className="input" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+            <div className="flow-step">
+              <h3>3. Жалобы</h3>
+              <div className="complaints-block">
+                <p className="muted">Напишите, пожалуйста, жалобы:</p>
+                <div className="complaints-grid">
+                  {complaintOptions.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`complaint-option ${complaints.includes(option) ? "active" : ""}`}
+                      onClick={() => toggleComplaint(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flow-step upload-step">
+              <h3>4. ОПТГ</h3>
+              <label className="upload-panel">
+                <input
+                  className="upload-input-hidden"
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.pdf"
+                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                />
+                <span className="upload-panel-icon" aria-hidden="true">
+                  +
+                </span>
+                <span className="upload-panel-title">{file ? "Файл выбран" : "Загрузите файл ОПТГ"}</span>
+                <span className="upload-panel-subtitle">
+                  {file ? file.name : "Поддерживаются PNG, JPG, WEBP и PDF"}
+                </span>
+              </label>
+            </div>
+
             <button type="submit" className="button" disabled={isProcessing}>
               {isProcessing ? "Обработка..." : "Обработать и получить заключение"}
             </button>

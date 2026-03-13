@@ -145,6 +145,9 @@ li {
   padding: 40px 30px 50px;
   position: relative;
   z-index: 1;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
 }
 
 .grid {
@@ -171,11 +174,20 @@ li {
   margin-top: 0;
 }
 
+.doctor-dashboard {
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.doctor-dashboard .hero {
+  margin-bottom: 0;
+}
+
 .patient-list-card {
-  height: calc(100vh - 170px);
-  max-height: calc(100vh - 170px);
   display: flex;
   flex-direction: column;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -530,8 +542,8 @@ li {
 }
 
 .toolbar-icon {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
 }
 
 .chat-fab {
@@ -820,6 +832,60 @@ li {
   margin-top: 18px;
 }
 
+.study-history-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 320px);
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.study-history-row::-webkit-scrollbar {
+  height: 10px;
+}
+
+.study-history-row::-webkit-scrollbar-thumb {
+  background: rgba(11, 60, 93, 0.22);
+  border-radius: 999px;
+}
+
+.study-history-card {
+  position: relative;
+  min-height: 170px;
+  padding: 22px 20px 18px;
+  border-radius: 24px;
+  background: var(--page-surface-strong);
+  border: 1px solid var(--page-border);
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.study-history-title {
+  padding-right: 110px;
+  line-height: 1.35;
+}
+
+.study-history-date {
+  margin: 0;
+}
+
+.study-download-link {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 94px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(11, 60, 93, 0.08);
+  border: 1px solid var(--page-border);
+  font-weight: 700;
+}
+
 .comment-item {
   padding: 16px 18px;
   border-radius: 18px;
@@ -844,6 +910,81 @@ li {
 .flow-step h3,
 .flow-step p {
   margin: 0;
+}
+
+.upload-step {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.complaints-block {
+  display: grid;
+  gap: 14px;
+}
+
+.complaints-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.complaint-option {
+  border: 1px solid var(--page-border);
+  border-radius: 18px;
+  padding: 16px 18px;
+  background: var(--page-surface);
+  color: var(--page-text);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.complaint-option.active {
+  background: linear-gradient(135deg, #00e5ff 0%, #00b8d4 45%, #7b61ff 100%);
+  color: #fff;
+  border-color: transparent;
+}
+
+.upload-panel {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 28px 24px;
+  border-radius: 24px;
+  border: 1px dashed rgba(0, 184, 212, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(244, 249, 252, 0.92)),
+    linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(123, 97, 255, 0.12));
+  cursor: pointer;
+  text-align: center;
+}
+
+.upload-panel-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #00e5ff 0%, #00b8d4 45%, #7b61ff 100%);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  box-shadow: 0 18px 36px rgba(0, 184, 212, 0.24);
+}
+
+.upload-panel-title {
+  color: var(--page-text);
+  font-weight: 700;
+}
+
+.upload-panel-subtitle {
+  color: var(--page-muted);
+  font-size: 0.96rem;
+}
+
+.upload-input-hidden {
+  display: none;
 }
 
 .flow-row {
@@ -933,11 +1074,6 @@ li {
     align-items: flex-start;
   }
 
-  .patient-list-card {
-    height: calc(100vh - 140px);
-    max-height: calc(100vh - 140px);
-  }
-
   .patient-actions {
     width: 100%;
     flex-direction: column;
@@ -961,6 +1097,10 @@ li {
   }
 
   .flow-row {
+    grid-template-columns: 1fr;
+  }
+
+  .complaints-grid {
     grid-template-columns: 1fr;
   }
 }

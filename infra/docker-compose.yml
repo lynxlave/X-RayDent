@@ -71,6 +71,8 @@ services:
       - ../.env
     ports:
       - "${DOCTOR_SERVICE_PORT:-8003}:8003"
+    depends_on:
+      - postgres
 
   clinic-admin-service:
     build:

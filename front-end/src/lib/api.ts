@@ -87,94 +87,6 @@ function fallbackRequest<T>(path: string, options?: RequestInit): T | null {
     return [{ id: "study-1", patient_id: "patient-1", complaint_codes: ["pain"], status: "completed" }] as T;
   }
 
-  if (path === "/api/doctors/patients" && options?.method === "POST") {
-    return {
-      id: `patient-${Date.now()}`,
-      user_id: `patient-user-${Date.now()}`,
-      full_name: typeof body.full_name === "string" ? body.full_name : "Новый пациент",
-      phone: typeof body.phone === "string" ? body.phone : "+79990000000",
-      birth_date: typeof body.birth_date === "string" ? body.birth_date : "",
-      status: "active",
-    } as T;
-  }
-
-  if (path === "/api/doctors/patients") {
-    return [
-      {
-        id: "patient-1",
-        user_id: "patient-user-1",
-        full_name: "Анна Смирнова",
-        phone: "+79990000001",
-        birth_date: "1990-04-18",
-        status: "completed",
-      },
-      {
-        id: "patient-2",
-        user_id: "patient-user-2",
-        full_name: "Ольга Кузнецова",
-        phone: "+79990000011",
-        birth_date: "1987-09-05",
-        status: "processing",
-      },
-      {
-        id: "patient-3",
-        user_id: "patient-user-3",
-        full_name: "Ирина Васильева",
-        phone: "+79990000012",
-        birth_date: "1994-12-21",
-        status: "rejected",
-      },
-      {
-        id: "patient-4",
-        user_id: "patient-user-4",
-        full_name: "Дмитрий Орлов",
-        phone: "+79990000013",
-        birth_date: "1981-02-14",
-        status: "completed",
-      },
-      {
-        id: "patient-5",
-        user_id: "patient-user-5",
-        full_name: "Екатерина Волкова",
-        phone: "+79990000014",
-        birth_date: "1998-07-30",
-        status: "processing",
-      },
-      {
-        id: "patient-6",
-        user_id: "patient-user-6",
-        full_name: "Марина Лебедева",
-        phone: "+79990000015",
-        birth_date: "1979-11-09",
-        status: "active",
-      },
-      {
-        id: "patient-7",
-        user_id: "patient-user-7",
-        full_name: "Александр Романов",
-        phone: "+79990000016",
-        birth_date: "1989-06-01",
-        status: "active",
-      },
-      {
-        id: "patient-8",
-        user_id: "patient-user-8",
-        full_name: "Наталья Соколова",
-        phone: "+79990000017",
-        birth_date: "1996-03-25",
-        status: "active",
-      },
-    ] as T;
-  }
-
-  if (path === "/api/doctors/patients/patient-1") {
-    return {
-      patient: { id: "patient-1" },
-      studies: [{ id: "study-1", status: "completed" }],
-      reports: [{ id: "report-1", summary: "Без патологии" }],
-    } as T;
-  }
-
   if (path === "/api/admin/doctors") {
     return [{ id: "doctor-1", can_review: true }] as T;
   }
@@ -206,10 +118,6 @@ function fallbackRequest<T>(path: string, options?: RequestInit): T | null {
     } as T;
   }
 
-  if (path.includes("/comments") && options?.method === "POST") {
-    return { saved: true } as T;
-  }
-
   if (path.includes("/access") && options?.method === "POST") {
     return { id: "doctor-1", can_review: body.can_review === true } as T;
   }
@@ -218,10 +126,11 @@ function fallbackRequest<T>(path: string, options?: RequestInit): T | null {
 }
 
 export const authApi = {
-  requestPatientCode: (phone: string) => request<{ status: string; code: string }>("/api/auth/patient/request-code", {
-    method: "POST",
-    body: JSON.stringify({ phone }),
-  }),
+  requestPatientCode: (phone: string) =>
+    request<{ status: string; code: string }>("/api/auth/patient/request-code", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    }),
   verifyPatient: (phone: string, code: string) =>
     request<Session>("/api/auth/patient/verify", {
       method: "POST",
@@ -268,22 +177,66 @@ export const patientApi = {
 export const doctorApi = {
   getMe: () => request("/api/doctors/me"),
   getPatients: () =>
-    request<Array<{ id: string; user_id: string; full_name: string; phone: string; birth_date: string; status: string }>>(
-      "/api/doctors/patients",
-    ),
-  createPatient: (payload: { full_name: string; birth_date: string; phone: string }) =>
-    request<{ id: string; user_id: string; full_name: string; phone: string; birth_date: string; status: string }>(
+    request<
+      Array<{
+        id: string;
+        user_id: string;
+        full_name: string;
+        phone: string;
+        email?: string | null;
+        birth_date: string;
+        status: string;
+        latest_comment?: string | null;
+        latest_comment_author?: string | null;
+        study_file_name?: string | null;
+        study_uploaded_at?: string | null;
+        study_processed_at?: string | null;
+      }>
+    >("/api/doctors/patients"),
+  createPatient: (payload: { full_name: string; birth_date: string; phone: string; email?: string | null }) =>
+    request<{ id: string; user_id: string; full_name: string; phone: string; email?: string | null; birth_date: string; status: string }>(
       "/api/doctors/patients",
       {
         method: "POST",
         body: JSON.stringify(payload),
       },
     ),
-  getPatientCard: (patientId: string) => request(`/api/doctors/patients/${patientId}`),
-  addComment: (patientId: string, studyId: string, comment: string) =>
-    request(`/api/doctors/patients/${patientId}/comments`, {
+  getPatientCard: (patientId: string) =>
+    request<{
+      patient: {
+        id: string;
+        full_name: string;
+        birth_date: string;
+        phone: string;
+        email?: string | null;
+        study_file_name?: string | null;
+        study_uploaded_at?: string | null;
+        study_processed_at?: string | null;
+      };
+      studies: Array<{ id: string; file_name: string; uploaded_at: string; processed_at?: string | null }>;
+      reports: Array<{ id: string; summary: string }>;
+      comments: Array<{ id: string; author_name: string; comment: string; created_at: string; recommendation?: string | null }>;
+    }>(`/api/doctors/patients/${patientId}`),
+  addComment: (patientId: string, authorName: string, comment: string, studyId?: string | null) =>
+    request<{ id?: string; saved: boolean; author_name: string; comment: string; created_at: string }>(
+      `/api/doctors/patients/${patientId}/comments`,
+      {
+        method: "POST",
+        body: JSON.stringify({ study_id: studyId, author_name: authorName, comment }),
+      },
+    ),
+  recordStudyEvent: (patientId: string, payload: { file_name: string; event: "uploaded" | "processed" }) =>
+    request<{ patient_id: string; file_name: string; uploaded_at?: string | null; processed_at?: string | null; status: string }>(
+      `/api/doctors/patients/${patientId}/study-events`,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+    ),
+  leaveFeedback: (patientId: string, message: string) =>
+    request<{ saved: boolean; message: string; created_at: string }>(`/api/doctors/patients/${patientId}/feedback`, {
       method: "POST",
-      body: JSON.stringify({ study_id: studyId, comment }),
+      body: JSON.stringify({ message }),
     }),
 };
 
