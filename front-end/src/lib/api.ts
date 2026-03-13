@@ -87,6 +87,17 @@ function fallbackRequest<T>(path: string, options?: RequestInit): T | null {
     return [{ id: "study-1", patient_id: "patient-1", complaint_codes: ["pain"], status: "completed" }] as T;
   }
 
+  if (path === "/api/doctors/patients" && options?.method === "POST") {
+    return {
+      id: `patient-${Date.now()}`,
+      user_id: `patient-user-${Date.now()}`,
+      full_name: typeof body.full_name === "string" ? body.full_name : "Новый пациент",
+      phone: typeof body.phone === "string" ? body.phone : "+79990000000",
+      birth_date: typeof body.birth_date === "string" ? body.birth_date : "",
+      status: "active",
+    } as T;
+  }
+
   if (path === "/api/doctors/patients") {
     return [
       {
@@ -259,6 +270,14 @@ export const doctorApi = {
   getPatients: () =>
     request<Array<{ id: string; user_id: string; full_name: string; phone: string; birth_date: string; status: string }>>(
       "/api/doctors/patients",
+    ),
+  createPatient: (payload: { full_name: string; birth_date: string; phone: string }) =>
+    request<{ id: string; user_id: string; full_name: string; phone: string; birth_date: string; status: string }>(
+      "/api/doctors/patients",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
     ),
   getPatientCard: (patientId: string) => request(`/api/doctors/patients/${patientId}`),
   addComment: (patientId: string, studyId: string, comment: string) =>

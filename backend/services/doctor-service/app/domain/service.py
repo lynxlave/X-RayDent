@@ -1,5 +1,5 @@
 from app.repositories.memory import DoctorRepository
-from app.schemas.doctor import DoctorCommentRequest
+from app.schemas.doctor import DoctorCommentRequest, DoctorCreatePatientRequest
 
 
 class DoctorService:
@@ -11,6 +11,9 @@ class DoctorService:
 
     def list_patients(self):
         return self.repository.list_patients()
+
+    def create_patient(self, payload: DoctorCreatePatientRequest):
+        return self.repository.create_patient(payload)
 
     def get_patient_card(self, patient_id: str):
         return self.repository.get_patient_card(patient_id)

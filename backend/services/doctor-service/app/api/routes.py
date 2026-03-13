@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.domain.service import DoctorService
-from app.schemas.doctor import DoctorCommentRequest
+from app.schemas.doctor import DoctorCommentRequest, DoctorCreatePatientRequest
 
 router = APIRouter()
 service = DoctorService()
@@ -15,6 +15,11 @@ def get_me():
 @router.get("/doctors/patients")
 def list_patients():
     return service.list_patients()
+
+
+@router.post("/doctors/patients")
+def create_patient(payload: DoctorCreatePatientRequest):
+    return service.create_patient(payload)
 
 
 @router.get("/doctors/patients/{patient_id}")

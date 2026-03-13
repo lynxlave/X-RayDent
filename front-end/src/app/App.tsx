@@ -4,6 +4,7 @@ import { AuthPage } from "../features/auth/AuthPage";
 import { AdminDashboard } from "../features/admin/AdminDashboard";
 import { DoctorDashboard } from "../features/doctor/DoctorDashboard";
 import { DoctorPatientPage } from "../features/doctor/DoctorPatientPage";
+import { DoctorStudyFlowPage } from "../features/doctor/DoctorStudyFlowPage";
 import { PatientDashboard } from "../features/patient/PatientDashboard";
 import { HomePage } from "../features/common/HomePage";
 import { useSessionStore } from "../lib/store";
@@ -41,6 +42,7 @@ export function App() {
         <Route path="/login" element={<HomePage />} />
         <Route path="/login/:role" element={<AuthPage />} />
         <Route path="/doctor/patients/:patientId" element={<DoctorPatientPage />} />
+        <Route path="/doctor/intake/:patientId" element={<DoctorStudyFlowPage />} />
         <Route path="/app" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
