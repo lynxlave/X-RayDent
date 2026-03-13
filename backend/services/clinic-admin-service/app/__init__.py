@@ -1,0 +1,1 @@
+"""Clinic admin service package."""

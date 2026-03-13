@@ -1,0 +1,27 @@
+from fastapi.testclient import TestClient
+
+from app.main import app
+
+
+client = TestClient(app)
+
+
+def test_doctor_flow() -> None:
+    me = client.get("/doctors/me")
+    assert me.status_code == 200
+    assert me.json()["profile"]["clinic_id"] == "clinic-1"
+
+    patients = client.get("/doctors/patients")
+    assert patients.status_code == 200
+    assert patients.json()[0]["id"] == "patient-1"
+
+    card = client.get("/doctors/patients/patient-1")
+    assert card.status_code == 200
+    assert "studies" in card.json()
+
+    comment = client.post(
+        "/doctors/patients/patient-1/comments",
+        json={"study_id": "study-1", "comment": "Нужен контроль", "recommendation": "Повторить снимок через 3 месяца"},
+    )
+    assert comment.status_code == 200
+    assert comment.json()["saved"] is True
