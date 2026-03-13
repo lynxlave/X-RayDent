@@ -58,6 +58,9 @@ yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
 .npm/
+.npm-cache/
+.cache/
+.eslintcache
 .yarn/
 .parcel-cache/
 .next/

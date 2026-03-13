@@ -47,6 +47,7 @@ describe("App routing", () => {
         token_type: "bearer",
         role: "patient",
         user_id: "patient-user-1",
+        full_name: "Анна Пациент",
       },
     });
     render(

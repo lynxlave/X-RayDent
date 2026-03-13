@@ -33,9 +33,9 @@ class AuthRepository:
     ) -> UserAccount:
         with self.database.session() as session:
             if session.execute(select(UserAccount).where(UserAccount.username == username)).scalar_one_or_none():
-                raise ValueError("Username already exists")
+                raise ValueError("Пользователь с таким логином уже существует.")
             if session.execute(select(UserAccount).where(UserAccount.phone == phone)).scalar_one_or_none():
-                raise ValueError("Phone already exists")
+                raise ValueError("Пользователь с таким номером телефона уже существует.")
             user = UserAccount(
                 id=user_id,
                 role="doctor",

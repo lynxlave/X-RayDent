@@ -18,6 +18,14 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
+def normalize_sqlalchemy_dsn(dsn: str) -> str:
+    if dsn.startswith("postgresql://"):
+        return dsn.replace("postgresql://", "postgresql+psycopg://", 1)
+    if dsn.startswith("postgres://"):
+        return dsn.replace("postgres://", "postgresql+psycopg://", 1)
+    return dsn
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -57,8 +65,9 @@ class RefreshTokenRecord(Base):
 class Database:
     def __init__(self, settings: CommonSettings | None = None) -> None:
         self.settings = settings or CommonSettings(service_name="auth-service")
-        connect_args = {"check_same_thread": False} if self.settings.postgres_dsn.startswith("sqlite") else {}
-        self.engine = create_engine(self.settings.postgres_dsn, future=True, connect_args=connect_args)
+        database_dsn = normalize_sqlalchemy_dsn(self.settings.postgres_dsn)
+        connect_args = {"check_same_thread": False} if database_dsn.startswith("sqlite") else {}
+        self.engine = create_engine(database_dsn, future=True, connect_args=connect_args)
         self.session_factory = sessionmaker(bind=self.engine, expire_on_commit=False, class_=Session)
 
     def create_schema(self) -> None:

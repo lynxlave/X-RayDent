@@ -23,6 +23,8 @@ def test_staff_login() -> None:
     response = client.post("/auth/staff/login", json={"username": "doctor", "password": "password"})
     assert response.status_code == 200
     assert response.json()["role"] == "doctor"
+    assert response.json()["full_name"]
+    assert response.json()["specialty"] == "stomatolog-terapevt"
 
 
 def test_doctor_registration_and_refresh() -> None:
@@ -39,6 +41,8 @@ def test_doctor_registration_and_refresh() -> None:
     )
     assert registered.status_code == 200
     assert registered.json()["role"] == "doctor"
+    assert registered.json()["full_name"] == "РџРµС‚СЂ РќРѕРІС‹Р№"
+    assert registered.json()["specialty"] == "stomatolog-hirurg"
 
     refreshed = client.post("/auth/refresh", json={"refresh_token": registered.json()["refresh_token"]})
     assert refreshed.status_code == 200
@@ -62,12 +66,12 @@ def test_lockout_after_three_failed_attempts() -> None:
     for expected_left in (2, 1):
         response = client.post("/auth/staff/login", json={"username": username, "password": "wrongpass"})
         assert response.status_code == 401
-        assert f"{expected_left} attempt(s) left" in response.json()["detail"]
+        assert f"РћСЃС‚Р°Р»РѕСЃСЊ РїРѕРїС‹С‚РѕРє РґРѕ Р±Р»РѕРєРёСЂРѕРІРєРё: {expected_left}" in response.json()["detail"]
 
     third = client.post("/auth/staff/login", json={"username": username, "password": "wrongpass"})
     assert third.status_code == 401
-    assert "locked for 1 minute" in third.json()["detail"]
+    assert "Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РЅР° 1 РјРёРЅ" in third.json()["detail"]
 
     locked = client.post("/auth/staff/login", json={"username": username, "password": "password123"})
     assert locked.status_code == 401
-    assert "temporarily locked" in locked.json()["detail"]
+    assert "РІСЂРµРјРµРЅРЅРѕ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ" in locked.json()["detail"]

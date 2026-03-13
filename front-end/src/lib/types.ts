@@ -6,6 +6,9 @@ export type Session = {
   token_type: string;
   role: Role;
   user_id: string;
+  full_name?: string | null;
+  specialty?: DoctorSpecialty | null;
+  username?: string | null;
 };
 
 export type DoctorSpecialty =

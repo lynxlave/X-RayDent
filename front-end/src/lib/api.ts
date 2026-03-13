@@ -2,6 +2,40 @@ import type { Complaint, DoctorRegistrationPayload, Report, Session, Study } fro
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
+function extractErrorMessage(payload: unknown): string | null {
+  if (typeof payload === "string") {
+    try {
+      const parsed = JSON.parse(payload) as { detail?: unknown };
+      return extractErrorMessage(parsed);
+    } catch {
+      return payload;
+    }
+  }
+
+  if (payload && typeof payload === "object" && "detail" in payload) {
+    const detail = (payload as { detail: unknown }).detail;
+    if (typeof detail === "string") {
+      return detail;
+    }
+    if (Array.isArray(detail)) {
+      return detail
+        .map((item) => {
+          if (typeof item === "string") {
+            return item;
+          }
+          if (item && typeof item === "object" && "msg" in item) {
+            return String((item as { msg: unknown }).msg);
+          }
+          return null;
+        })
+        .filter((item): item is string => Boolean(item))
+        .join(" ");
+    }
+  }
+
+  return null;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   try {
     const response = await fetch(`${API_URL}${path}`, {
@@ -13,7 +47,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     });
 
     if (!response.ok) {
-      throw new Error(await response.text());
+      const rawBody = await response.text();
+      const message = extractErrorMessage(rawBody) ?? `Ошибка запроса (${response.status})`;
+      throw new Error(message);
     }
 
     return response.json() as Promise<T>;
@@ -52,7 +88,72 @@ function fallbackRequest<T>(path: string, options?: RequestInit): T | null {
   }
 
   if (path === "/api/doctors/patients") {
-    return [{ id: "patient-1", user_id: "patient-user-1" }] as T;
+    return [
+      {
+        id: "patient-1",
+        user_id: "patient-user-1",
+        full_name: "Анна Смирнова",
+        phone: "+79990000001",
+        birth_date: "1990-04-18",
+        status: "completed",
+      },
+      {
+        id: "patient-2",
+        user_id: "patient-user-2",
+        full_name: "Ольга Кузнецова",
+        phone: "+79990000011",
+        birth_date: "1987-09-05",
+        status: "processing",
+      },
+      {
+        id: "patient-3",
+        user_id: "patient-user-3",
+        full_name: "Ирина Васильева",
+        phone: "+79990000012",
+        birth_date: "1994-12-21",
+        status: "rejected",
+      },
+      {
+        id: "patient-4",
+        user_id: "patient-user-4",
+        full_name: "Дмитрий Орлов",
+        phone: "+79990000013",
+        birth_date: "1981-02-14",
+        status: "completed",
+      },
+      {
+        id: "patient-5",
+        user_id: "patient-user-5",
+        full_name: "Екатерина Волкова",
+        phone: "+79990000014",
+        birth_date: "1998-07-30",
+        status: "processing",
+      },
+      {
+        id: "patient-6",
+        user_id: "patient-user-6",
+        full_name: "Марина Лебедева",
+        phone: "+79990000015",
+        birth_date: "1979-11-09",
+        status: "active",
+      },
+      {
+        id: "patient-7",
+        user_id: "patient-user-7",
+        full_name: "Александр Романов",
+        phone: "+79990000016",
+        birth_date: "1989-06-01",
+        status: "active",
+      },
+      {
+        id: "patient-8",
+        user_id: "patient-user-8",
+        full_name: "Наталья Соколова",
+        phone: "+79990000017",
+        birth_date: "1996-03-25",
+        status: "active",
+      },
+    ] as T;
   }
 
   if (path === "/api/doctors/patients/patient-1") {
@@ -155,7 +256,10 @@ export const patientApi = {
 
 export const doctorApi = {
   getMe: () => request("/api/doctors/me"),
-  getPatients: () => request<Array<{ id: string; user_id: string }>>("/api/doctors/patients"),
+  getPatients: () =>
+    request<Array<{ id: string; user_id: string; full_name: string; phone: string; birth_date: string; status: string }>>(
+      "/api/doctors/patients",
+    ),
   getPatientCard: (patientId: string) => request(`/api/doctors/patients/${patientId}`),
   addComment: (patientId: string, studyId: string, comment: string) =>
     request(`/api/doctors/patients/${patientId}/comments`, {

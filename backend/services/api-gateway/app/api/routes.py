@@ -13,9 +13,14 @@ async def forward(method: str, service_url: str, path: str, payload: dict | None
     try:
         return await service.request(method, service_url, path, payload)
     except httpx.HTTPStatusError as exc:
-        raise HTTPException(status_code=exc.response.status_code, detail=exc.response.text) from exc
+        detail: str | dict | list
+        try:
+            detail = exc.response.json().get("detail", exc.response.text)
+        except ValueError:
+            detail = exc.response.text
+        raise HTTPException(status_code=exc.response.status_code, detail=detail) from exc
     except httpx.HTTPError as exc:
-        raise HTTPException(status_code=503, detail=f"Upstream unavailable: {exc}") from exc
+        raise HTTPException(status_code=503, detail="Сервис временно недоступен. Попробуйте еще раз.") from exc
 
 
 @router.post("/api/auth/patient/request-code")

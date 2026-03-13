@@ -35,3 +35,6 @@ class AuthToken(BaseModel):
     token_type: str = "bearer"
     role: Role
     user_id: str
+    full_name: str | None = None
+    specialty: str | None = None
+    username: str | None = None

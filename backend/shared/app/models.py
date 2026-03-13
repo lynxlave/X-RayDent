@@ -48,6 +48,7 @@ class PatientProfile(BaseModel):
     id: str
     user_id: str
     phone: str
+    birth_date: Optional[str] = None
     consent_signed: bool = False
     theme: str = "light"
 
