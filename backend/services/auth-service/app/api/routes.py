@@ -1,7 +1,13 @@
 from fastapi import APIRouter, HTTPException
 
 from app.domain.service import AuthService
-from app.schemas.auth import PhoneRequest, StaffLoginRequest, VerifyCodeRequest
+from app.schemas.auth import (
+    DoctorRegistrationRequest,
+    PhoneRequest,
+    RefreshTokenRequest,
+    StaffLoginRequest,
+    VerifyCodeRequest,
+)
 
 router = APIRouter()
 service = AuthService()
@@ -27,5 +33,21 @@ def verify_code(payload: VerifyCodeRequest):
 def staff_login(payload: StaffLoginRequest):
     try:
         return service.staff_login(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+@router.post("/auth/doctor/register")
+def register_doctor(payload: DoctorRegistrationRequest):
+    try:
+        return service.register_doctor(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/auth/refresh")
+def refresh(payload: RefreshTokenRequest):
+    try:
+        return service.refresh(payload)
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc

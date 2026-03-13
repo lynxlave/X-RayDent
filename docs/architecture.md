@@ -1,4 +1,4 @@
-# X-RayDent Architecture
+# Архитектура X-РайДент
 
 ## Backend services
 

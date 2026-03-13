@@ -1,7 +1,7 @@
 [project]
 name = "xraydent-backend"
 version = "0.1.0"
-description = "Shared backend dependencies for the X-RayDent platform skeleton."
+description = "Shared backend dependencies for the X-РайДент platform skeleton."
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115.0",

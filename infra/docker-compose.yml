@@ -12,8 +12,15 @@ services:
       dockerfile: front-end/Dockerfile
     env_file:
       - ../.env
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ../front-end:/app
+      - frontend_node_modules:/app/node_modules
+    command: sh -c "npm install && npm run dev"
     depends_on:
       - api-gateway
 
@@ -44,6 +51,8 @@ services:
       - ../.env
     ports:
       - "${AUTH_SERVICE_PORT:-8001}:8001"
+    depends_on:
+      - postgres
 
   patient-service:
     build:
@@ -138,5 +147,6 @@ services:
       - minio_data:/data
 
 volumes:
+  frontend_node_modules:
   postgres_data:
   minio_data:

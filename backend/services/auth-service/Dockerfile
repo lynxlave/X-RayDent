@@ -4,7 +4,7 @@ WORKDIR /workspace/backend/services/auth-service
 
 COPY backend /workspace/backend
 
-RUN pip install --no-cache-dir fastapi uvicorn[standard] pydantic pydantic-settings httpx
+RUN pip install --no-cache-dir fastapi uvicorn[standard] pydantic pydantic-settings httpx sqlalchemy "psycopg[binary]"
 
 ENV PYTHONPATH=/workspace
 

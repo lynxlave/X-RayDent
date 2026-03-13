@@ -7,7 +7,7 @@ class CommonSettings(BaseSettings):
     app_env: str = "development"
     app_debug: bool = True
     jwt_secret: str = "xraydent-secret"
-    postgres_dsn: str = "postgresql://xraydent:xraydent@postgres:5432/xraydent"
+    postgres_dsn: str = "sqlite:///./xraydent.db"
     rabbitmq_url: str = "amqp://guest:guest@rabbitmq:5672/"
     minio_endpoint: str = "minio:9000"
     minio_access_key: str = "xraydent"
@@ -26,5 +26,7 @@ class CommonSettings(BaseSettings):
     notification_service_url: str = "http://notification-service:8008"
     api_gateway_url: str = "http://api-gateway:8000"
     request_timeout_seconds: float = Field(default=5.0, ge=0.1)
+    access_token_ttl_minutes: int = 15
+    refresh_token_ttl_days: int = 7
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

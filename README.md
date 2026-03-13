@@ -1,4 +1,4 @@
-# X-RayDent Platform Skeleton
+# X-РайДент Skeleton
 
 MVP-каркас платформы для работы с ортопантомограммами. Репозиторий подготовлен для локальной разработки и запуска через Docker Compose и включает:
 
@@ -194,6 +194,8 @@ x-raydent-platform/
 docker compose --env-file .env -f infra/docker-compose.yml up --build
 ```
 
+`front-end` запускается в dev-режиме внутри Docker: исходники смонтированы в контейнер как bind mount, поэтому изменения в `front-end/src` подхватываются через Vite hot reload без рестарта контейнера.
+
 После запуска доступны:
 
 - landing: `http://localhost:4174`
@@ -238,6 +240,8 @@ cd front-end
 npm install
 npm run dev
 ```
+
+Если используется Docker Compose, локальный запуск `front-end` не нужен: dev-сервер уже работает внутри контейнера.
 
 #### Landing
 

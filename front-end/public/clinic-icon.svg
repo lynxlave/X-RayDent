@@ -1,0 +1,20 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="clinicCard" x1="36" y1="28" x2="220" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00E5FF"/>
+      <stop offset="1" stop-color="#7B61FF"/>
+    </linearGradient>
+  </defs>
+  <rect x="28" y="28" width="200" height="200" rx="52" fill="url(#clinicCard)"/>
+  <path d="M78 82C78 75.3726 83.3726 70 90 70H146C152.627 70 158 75.3726 158 82V186H78V82Z" fill="white"/>
+  <path d="M158 104C158 97.3726 163.373 92 170 92H184C190.627 92 196 97.3726 196 104V186H158V104Z" fill="white" fill-opacity="0.88"/>
+  <rect x="94" y="88" width="14" height="14" rx="3" fill="#4E7BFF"/>
+  <rect x="126" y="88" width="14" height="14" rx="3" fill="#4E7BFF"/>
+  <rect x="94" y="116" width="14" height="14" rx="3" fill="#4E7BFF"/>
+  <rect x="126" y="116" width="14" height="14" rx="3" fill="#4E7BFF"/>
+  <rect x="94" y="144" width="14" height="14" rx="3" fill="#4E7BFF"/>
+  <rect x="126" y="144" width="14" height="14" rx="3" fill="#4E7BFF"/>
+  <rect x="169" y="112" width="10" height="10" rx="2" fill="#00D9F5"/>
+  <rect x="169" y="132" width="10" height="10" rx="2" fill="#00D9F5"/>
+  <path d="M112 160C112 156.686 114.686 154 118 154H126C129.314 154 132 156.686 132 160V186H112V160Z" fill="#4E7BFF"/>
+</svg>

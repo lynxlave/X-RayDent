@@ -1,0 +1,12 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dentistCard" x1="36" y1="28" x2="220" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00D9F5"/>
+      <stop offset="1" stop-color="#4E7BFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="28" y="28" width="200" height="200" rx="52" fill="url(#dentistCard)"/>
+  <circle cx="116" cy="100" r="30" fill="white"/>
+  <path d="M74 176C74 149.49 95.4903 128 122 128H126C152.51 128 174 149.49 174 176V184H74V176Z" fill="white"/>
+  <path d="M162 82H178V66H190V82H206V94H190V110H178V94H162V82Z" fill="white"/>
+</svg>

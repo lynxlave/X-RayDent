@@ -1,1 +1,1 @@
-"""Shared backend package for the X-RayDent platform skeleton."""
+"""Shared backend package for the X-РайДент platform skeleton."""

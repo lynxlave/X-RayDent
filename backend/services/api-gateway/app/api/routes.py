@@ -33,6 +33,16 @@ async def staff_login(payload: dict):
     return await forward("POST", settings.auth_service_url, "/auth/staff/login", payload)
 
 
+@router.post("/api/auth/doctor/register")
+async def doctor_register(payload: dict):
+    return await forward("POST", settings.auth_service_url, "/auth/doctor/register", payload)
+
+
+@router.post("/api/auth/refresh")
+async def refresh(payload: dict):
+    return await forward("POST", settings.auth_service_url, "/auth/refresh", payload)
+
+
 @router.get("/api/patients/me")
 async def patient_me():
     return await forward("GET", settings.patient_service_url, "/patients/me")

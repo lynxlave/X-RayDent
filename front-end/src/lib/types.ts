@@ -2,8 +2,25 @@ export type Role = "patient" | "doctor" | "clinic_admin";
 
 export type Session = {
   access_token: string;
+  refresh_token: string;
+  token_type: string;
   role: Role;
   user_id: string;
+};
+
+export type DoctorSpecialty =
+  | "stomatolog-terapevt"
+  | "stomatolog-ortoped"
+  | "stomatolog-hirurg"
+  | "stomatolog-ortodont"
+  | "chelyustno-litsevoy-hirurg";
+
+export type DoctorRegistrationPayload = {
+  full_name: string;
+  specialty: DoctorSpecialty;
+  phone: string;
+  username: string;
+  password: string;
 };
 
 export type Complaint = {

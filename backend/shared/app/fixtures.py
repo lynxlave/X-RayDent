@@ -17,7 +17,7 @@ from backend.shared.app.models import (
 
 
 CLINICS = [
-    Clinic(id="clinic-1", name="X-RayDent Central"),
+    Clinic(id="clinic-1", name="X-РайДент Central"),
 ]
 
 USERS = [

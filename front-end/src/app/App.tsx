@@ -4,7 +4,7 @@ import { AuthPage } from "../features/auth/AuthPage";
 import { AdminDashboard } from "../features/admin/AdminDashboard";
 import { DoctorDashboard } from "../features/doctor/DoctorDashboard";
 import { PatientDashboard } from "../features/patient/PatientDashboard";
-import { SupportPage } from "../features/common/SupportPage";
+import { HomePage } from "../features/common/HomePage";
 import { useSessionStore } from "../lib/store";
 
 function RoleRoute() {
@@ -22,14 +22,24 @@ function RoleRoute() {
   return <Navigate to="/login" replace />;
 }
 
+function RootRoute() {
+  const session = useSessionStore((state) => state.session);
+
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <RoleRoute />;
+}
+
 export function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
-        <Route index element={<Navigate to="/app" replace />} />
-        <Route path="/login" element={<AuthPage />} />
-        <Route path="/app" element={<RoleRoute />} />
-        <Route path="/support" element={<SupportPage />} />
+        <Route index element={<RootRoute />} />
+        <Route path="/login" element={<HomePage />} />
+        <Route path="/login/:role" element={<AuthPage />} />
+        <Route path="/app" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );
