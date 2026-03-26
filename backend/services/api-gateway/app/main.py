@@ -6,9 +6,17 @@ from app.api.routes import router
 
 settings = CommonSettings(service_name="api-gateway")
 app = FastAPI(title="API Gateway", version="0.1.0", debug=settings.app_debug)
+allowed_origins = [
+    settings.frontend_url,
+    settings.landing_url,
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4174",
+    "http://127.0.0.1:4174",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url, "http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=list(dict.fromkeys(allowed_origins)),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

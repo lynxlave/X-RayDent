@@ -1,0 +1,18 @@
+{
+	email {$ACME_EMAIL}
+}
+
+x-raydent.ru {
+	encode gzip zstd
+	reverse_proxy landing:80
+}
+
+app.x-raydent.ru {
+	encode gzip zstd
+	reverse_proxy frontend:80
+}
+
+api.x-raydent.ru {
+	encode gzip zstd
+	reverse_proxy api-gateway:8000
+}

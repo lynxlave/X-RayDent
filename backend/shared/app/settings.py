@@ -16,6 +16,7 @@ class CommonSettings(BaseSettings):
     smtp_host: str = "mailhog"
     smtp_port: int = 1025
     frontend_url: str = "http://localhost:5173"
+    landing_url: str = "http://localhost:4174"
     auth_service_url: str = "http://auth-service:8001"
     patient_service_url: str = "http://patient-service:8002"
     doctor_service_url: str = "http://doctor-service:8003"
