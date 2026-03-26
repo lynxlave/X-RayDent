@@ -5,7 +5,7 @@ export function Navigation() {
   const { protocol, hostname } = window.location;
   const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
   const appHost = isLocalhost ? `${hostname}:5173` : `app.${hostname.replace(/^app\./, "").replace(/^api\./, "")}`;
-  const loginUrl = `${protocol}//${appHost}/login#system-login`;
+  const loginUrl = `${protocol}//${appHost}/login`;
 
   function openLoginSection() {
     window.top?.location.assign(loginUrl);
