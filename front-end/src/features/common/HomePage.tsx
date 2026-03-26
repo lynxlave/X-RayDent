@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const roles = [
-  { key: "patient", image: "/images/patient_icon.png", title: "РЇ РїР°С†РёРµРЅС‚" },
-  { key: "doctor", image: "/images/dentist_icon.png", title: "РЇ РІСЂР°С‡" },
-  { key: "clinic", image: "/images/clinic_icon.png", title: "РЇ РєР»РёРЅРёРєР°" },
+  { key: "patient", image: "/images/patient_icon.png", title: "Я пациент" },
+  { key: "doctor", image: "/images/dentist_icon.png", title: "Я врач" },
+  { key: "clinic", image: "/images/clinic_icon.png", title: "Я клиника" },
 ] as const;
 
 function getLandingUrl() {
@@ -18,27 +18,31 @@ function getLandingUrl() {
 }
 
 export function HomePage() {
+  const location = useLocation();
   const landingUrl = getLandingUrl();
+  const showLoginOnly = location.hash === "#system-login";
 
   return (
     <div className="landing-login-page">
-      <section className="landing-preview" aria-label="X-RayDent landing">
-        <iframe
-          title="X-RayDent landing"
-          src={landingUrl}
-          className="landing-preview-frame"
-        />
-      </section>
+      {!showLoginOnly ? (
+        <section className="landing-preview" aria-label="X-RayDent landing">
+          <iframe
+            title="X-RayDent landing"
+            src={landingUrl}
+            className="landing-preview-frame"
+          />
+        </section>
+      ) : null}
 
       <section id="system-login" className="selector-layout">
         <div className="selector-hero">
-          <span className="badge">X-Р Р°Р№Р”РµРЅС‚</span>
-          <h1>Р’С…РѕРґ РІ СЃРёСЃС‚РµРјСѓ</h1>
+          <span className="badge">Х-РайДент</span>
+          <h1>Вход в систему</h1>
           <p className="selector-description">
-            Р’С‹Р±РµСЂРёС‚Рµ СЂРѕР»СЊ, С‡С‚РѕР±С‹ РїРµСЂРµР№С‚Рё Рє РЅСѓР¶РЅРѕРјСѓ СЃС†РµРЅР°СЂРёСЋ РІС…РѕРґР°.
+            Выберите роль, чтобы перейти к нужному сценарию входа.
           </p>
         </div>
-        <section className="role-grid" aria-label="Р’С‹Р±РѕСЂ СЂРѕР»Рё">
+        <section className="role-grid" aria-label="Выбор роли">
           {roles.map((role) => (
             <Link key={role.key} to={`/login/${role.key}`} className="role-tile">
               <img className="role-image" src={role.image} alt={`${role.title} icon`} />
