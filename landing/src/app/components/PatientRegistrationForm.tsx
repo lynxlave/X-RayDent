@@ -1,29 +1,15 @@
 import { useState } from 'react';
-import { X, CheckCircle2, UserCog, User, Mail, Phone, ChevronDown } from 'lucide-react';
+import { X, CheckCircle2, User, Mail, Phone } from 'lucide-react';
 
-interface ContactFormProps {
+interface PatientRegistrationFormProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const SPECIALTIES = [
-  'Главный врач клиники',
-  'Директор клиники',
-  'Стоматолог-Терапевт',
-  'Стоматолог-Хирург',
-  'Стоматолог-Ортопед',
-  'Стоматолог-Ортодонт',
-  'Директор лаборатории',
-  'Главный врач лаборатории',
-  'Рентген-лаборант'
-];
-
-export function ContactForm({ isOpen, onClose }: ContactFormProps) {
+export function PatientRegistrationForm({ isOpen, onClose }: PatientRegistrationFormProps) {
   const [submitted, setSubmitted] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    specialty: '',
+    fullName: '',
     email: '',
     phone: ''
   });
@@ -36,7 +22,7 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
     setTimeout(() => {
       setSubmitted(false);
       onClose();
-      setFormData({ name: '', specialty: '', email: '', phone: '' });
+      setFormData({ fullName: '', email: '', phone: '' });
     }, 3000);
   };
 
@@ -64,9 +50,9 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
           </button>
 
           <div className="relative space-y-2">
-            <h2 className="text-3xl font-bold">Оставить заявку</h2>
+            <h2 className="text-3xl font-bold">Регистрация пациента</h2>
             <p className="text-white/80">
-              Заполните форму и наш специалист свяжется с вами в течение 24 часов
+              Заполните форму для регистрации в системе X-РайДент
             </p>
           </div>
         </div>
@@ -75,65 +61,36 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
         <div className="p-8">
           {!submitted ? (
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Name Input */}
+              {/* Full Name Input */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#0B3C5D] flex items-center gap-2">
                   <User className="w-4 h-4 text-[#00E5FF]" />
-                  Ваше имя
+                  ФИО
                 </label>
                 <input
                   type="text"
                   required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border-2 border-[#0B3C5D]/10 focus:border-[#00E5FF] focus:outline-none transition-colors bg-white"
-                  placeholder="Иван Иванов"
+                  placeholder="Иванов Иван Иванович"
                 />
               </div>
 
-              {/* Specialty Dropdown */}
+              {/* Phone Input */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#0B3C5D] flex items-center gap-2">
-                  <UserCog className="w-4 h-4 text-[#7B61FF]" />
-                  Ваша специальность
+                  <Phone className="w-4 h-4 text-[#7B61FF]" />
+                  Контактный телефон
                 </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-[#0B3C5D]/10 focus:border-[#7B61FF] focus:outline-none transition-colors bg-white text-left flex items-center justify-between"
-                  >
-                    <span className={formData.specialty ? 'text-[#0B3C5D]' : 'text-[#0B3C5D]/40'}>
-                      {formData.specialty || 'Выберите специальность'}
-                    </span>
-                    <ChevronDown className={`w-5 h-5 text-[#7B61FF] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {/* Dropdown Menu */}
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 w-full mt-2 bg-white rounded-xl border-2 border-[#0B3C5D]/10 shadow-xl overflow-hidden">
-                      <div className="max-h-64 overflow-y-auto">
-                        {SPECIALTIES.map((specialty) => (
-                          <button
-                            key={specialty}
-                            type="button"
-                            onClick={() => {
-                              setFormData({ ...formData, specialty });
-                              setIsDropdownOpen(false);
-                            }}
-                            className={`w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-[#00E5FF]/10 hover:to-[#7B61FF]/10 transition-colors ${
-                              formData.specialty === specialty
-                                ? 'bg-gradient-to-r from-[#00E5FF]/20 to-[#7B61FF]/20 text-[#0B3C5D] font-medium'
-                                : 'text-[#0B3C5D]/80'
-                            }`}
-                          >
-                            {specialty}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <input
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[#0B3C5D]/10 focus:border-[#7B61FF] focus:outline-none transition-colors bg-white"
+                  placeholder="+7 (___) ___-__-__"
+                />
               </div>
 
               {/* Email Input */}
@@ -148,23 +105,7 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border-2 border-[#0B3C5D]/10 focus:border-[#00E5FF] focus:outline-none transition-colors bg-white"
-                  placeholder="info@clinic.ru"
-                />
-              </div>
-
-              {/* Phone Input */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#0B3C5D] flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-[#7B61FF]" />
-                  Телефон
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-[#0B3C5D]/10 focus:border-[#7B61FF] focus:outline-none transition-colors bg-white"
-                  placeholder="+7 (___) ___-__-__"
+                  placeholder="example@mail.ru"
                 />
               </div>
 
@@ -176,7 +117,7 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00E5FF] to-[#7B61FF]" />
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                 <span className="relative z-10 font-semibold text-white">
-                  Отправить заявку
+                  Зарегистрироваться
                 </span>
               </button>
 
@@ -194,9 +135,9 @@ export function ContactForm({ isOpen, onClose }: ContactFormProps) {
                 <CheckCircle2 className="w-10 h-10 text-[#00E5FF]" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-[#0B3C5D]">Заявка отправлена!</h3>
+                <h3 className="text-2xl font-bold text-[#0B3C5D]">Регистрация успешна!</h3>
                 <p className="text-[#0B3C5D]/70">
-                  Мы свяжемся с вами в ближайшее время
+                  Мы отправили вам письмо с дальнейшими инструкциями
                 </p>
               </div>
             </div>

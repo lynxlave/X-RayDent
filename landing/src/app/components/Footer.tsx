@@ -1,4 +1,5 @@
 import { Mail, Phone, MapPin } from "lucide-react";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export function Footer() {
   return (
@@ -11,14 +12,21 @@ export function Footer() {
 
       <div className="relative max-w-7xl mx-auto px-6">
         {/* Main Footer Content */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           {/* Brand Column */}
           <div className="space-y-4 lg:col-span-2">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00E5FF] to-[#7B61FF] flex items-center justify-center">
-                <span className="text-white font-bold text-xl">
-                  X
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="relative w-12 h-12">
+                {/* Neon glow ring */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#00E5FF] via-[#7B61FF] to-[#00E5FF] opacity-30 blur-md" />
+                {/* Logo container */}
+                <div className="relative w-full h-full rounded-full overflow-hidden bg-white shadow-lg shadow-[#00E5FF]/20 ring-2 ring-[#00E5FF]/50">
+                  <ImageWithFallback
+                    src="https://i.ibb.co/7WBvSYG/dJ5MNHGd.png"
+                    alt="X-РайДент логотип"
+                    className="w-full h-full object-contain p-1"
+                  />
+                </div>
               </div>
               <span className="text-2xl font-bold">
                 X-РайДент
@@ -117,6 +125,28 @@ export function Footer() {
               >
                 Контакты
               </a>
+            </div>
+          </div>
+
+          {/* QR Code Column */}
+          <div className="space-y-4">
+            <h4 className="font-semibold text-lg mb-6">
+              Быстрый доступ
+            </h4>
+            <div className="relative group">
+              {/* QR Code Container with neon effect */}
+              <div className="relative p-4 rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-[#00E5FF]/30 hover:border-[#00E5FF]/60 transition-all duration-300 shadow-lg shadow-[#00E5FF]/20 hover:shadow-[#00E5FF]/40">
+                <img
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://x-raydent.ru"
+                  alt="QR код X-РайДент"
+                  className="w-full h-auto rounded-lg"
+                />
+                {/* Glow effect on hover */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#00E5FF]/20 to-[#7B61FF]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl -z-10" />
+              </div>
+              <p className="text-xs text-white/60 text-center mt-3">
+                Наведите камеру телефона<br />для быстрого доступа
+              </p>
             </div>
           </div>
         </div>

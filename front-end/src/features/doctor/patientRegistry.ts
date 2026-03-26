@@ -3,35 +3,11 @@ export type DoctorPatientRecord = {
   fullName: string;
   birthDate: string;
   phone: string;
+  email?: string | null;
   status: string;
+  latestComment?: string | null;
+  latestCommentAuthor?: string | null;
   studyFileName?: string | null;
-  comments?: string[];
+  studyUploadedAt?: string | null;
+  studyProcessedAt?: string | null;
 };
-
-const STORAGE_KEY = "xraydent.doctorPatients";
-
-export function loadDoctorPatients(): DoctorPatientRecord[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as DoctorPatientRecord[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function saveDoctorPatients(patients: DoctorPatientRecord[]) {
-  if (typeof window === "undefined") {
-    return;
-  }
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(patients));
-}
-
-export function updateDoctorPatient(patientId: string, updater: (patient: DoctorPatientRecord) => DoctorPatientRecord) {
-  const patients = loadDoctorPatients();
-  const nextPatients = patients.map((patient) => (patient.id === patientId ? updater(patient) : patient));
-  saveDoctorPatients(nextPatients);
-  return nextPatients;
-}

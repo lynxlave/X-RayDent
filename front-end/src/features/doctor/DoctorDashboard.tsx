@@ -1,9 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { doctorApi, studiesApi } from "../../lib/api";
+import { doctorApi } from "../../lib/api";
 import { useSessionStore } from "../../lib/store";
 import type { DoctorSpecialty } from "../../lib/types";
-import { loadDoctorPatients, saveDoctorPatients, type DoctorPatientRecord } from "./patientRegistry";
+import type { DoctorPatientRecord } from "./patientRegistry";
 
 const specialtyLabels: Record<DoctorSpecialty, string> = {
   "stomatolog-terapevt": "стоматолог-терапевт",
@@ -13,32 +13,24 @@ const specialtyLabels: Record<DoctorSpecialty, string> = {
   "chelyustno-litsevoy-hirurg": "челюстно-лицевой хирург",
 };
 
+function formatBirthDate(value: string) {
+  if (!value) {
+    return "Дата рождения не указана";
+  }
+  return new Date(value).toLocaleDateString("ru-RU");
+}
+
 function formatPatientPhone(value: string): string {
   const digits = value.replace(/\D/g, "");
   const normalized = digits.startsWith("7") ? digits.slice(1) : digits.startsWith("8") ? digits.slice(1) : digits;
   const limited = normalized.slice(0, 10);
 
   let result = "+7";
-  if (limited.length > 0) {
-    result += ` (${limited.slice(0, 3)}`;
-  }
-  if (limited.length >= 4) {
-    result += `) ${limited.slice(3, 6)}`;
-  }
-  if (limited.length >= 7) {
-    result += `-${limited.slice(6, 8)}`;
-  }
-  if (limited.length >= 9) {
-    result += `-${limited.slice(8, 10)}`;
-  }
+  if (limited.length > 0) result += ` (${limited.slice(0, 3)}`;
+  if (limited.length >= 4) result += `) ${limited.slice(3, 6)}`;
+  if (limited.length >= 7) result += `-${limited.slice(6, 8)}`;
+  if (limited.length >= 9) result += `-${limited.slice(8, 10)}`;
   return result;
-}
-
-function formatBirthDate(value: string) {
-  if (!value) {
-    return "Дата рождения не указана";
-  }
-  return new Date(value).toLocaleDateString("ru-RU");
 }
 
 export function DoctorDashboard() {
@@ -47,180 +39,126 @@ export function DoctorDashboard() {
   const [patients, setPatients] = useState<DoctorPatientRecord[]>([]);
   const [search, setSearch] = useState("");
   const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState<DoctorPatientRecord | null>(null);
-  const [fullName, setFullName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [phone, setPhone] = useState("+7");
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [formError, setFormError] = useState("");
-  const [formSuccess, setFormSuccess] = useState("");
-  const [uploadError, setUploadError] = useState("");
-  const [uploadSuccess, setUploadSuccess] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  const [newPatientLastName, setNewPatientLastName] = useState("");
+  const [newPatientFirstName, setNewPatientFirstName] = useState("");
+  const [newPatientMiddleName, setNewPatientMiddleName] = useState("");
+  const [newPatientBirthDate, setNewPatientBirthDate] = useState("");
+  const [newPatientPhone, setNewPatientPhone] = useState("+7");
+  const [newPatientEmail, setNewPatientEmail] = useState("");
+  const [newPatientError, setNewPatientError] = useState("");
+  const [isCreatingPatient, setIsCreatingPatient] = useState(false);
 
   const doctorBadge = `Врач-${session?.specialty ? specialtyLabels[session.specialty] : "специалист"}`;
   const doctorTitle = session?.full_name || "Кабинет врача";
 
   useEffect(() => {
-    const storedPatients = loadDoctorPatients();
     doctorApi.getPatients().then((items) => {
-      const mappedPatients = items.map((patient) => ({
-        id: patient.id,
-        fullName: patient.full_name,
-        birthDate: patient.birth_date,
-        phone: patient.phone,
-        status:
-          patient.status === "completed"
-            ? "Готово"
-            : patient.status === "processing"
-              ? "В обработке"
-              : patient.status === "rejected"
-                ? "Снимок отклонен"
-                : "Активен",
-        studyFileName: null,
-      }));
-      const mergedPatients = [
-        ...storedPatients,
-        ...mappedPatients.filter((patient) => !storedPatients.some((stored) => stored.id === patient.id)),
-      ];
-      setPatients(mergedPatients);
-      saveDoctorPatients(mergedPatients);
+      setPatients(
+        items.map((patient) => ({
+          id: patient.id,
+          fullName: patient.full_name,
+          birthDate: patient.birth_date,
+          phone: patient.phone,
+          email: patient.email ?? null,
+          status:
+            patient.status === "completed"
+              ? "Готово"
+              : patient.status === "processing"
+                ? "В обработке"
+                : patient.status === "rejected"
+                  ? "Снимок отклонен"
+                  : "Активен",
+          latestComment: patient.latest_comment,
+          latestCommentAuthor: patient.latest_comment_author,
+          studyFileName: patient.study_file_name ?? null,
+          studyUploadedAt: patient.study_uploaded_at ?? null,
+          studyProcessedAt: patient.study_processed_at ?? null,
+        })),
+      );
     });
   }, []);
 
   const filteredPatients = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
-    if (!normalizedSearch) {
-      return patients;
-    }
+    if (!normalizedSearch) return patients;
     return patients.filter((patient) => patient.fullName.toLowerCase().includes(normalizedSearch));
   }, [patients, search]);
 
-  async function registerPatient(event: FormEvent) {
-    event.preventDefault();
-    setFormError("");
-    setFormSuccess("");
-
-    if (!fullName.trim()) {
-      setFormError("Введите ФИО пациента.");
-      return;
-    }
-    if (!birthDate) {
-      setFormError("Укажите дату рождения пациента.");
-      return;
-    }
-    if (phone.replace(/\D/g, "").length < 11) {
-      setFormError("Введите номер телефона пациента.");
-      return;
-    }
-    if (!file) {
-      setFormError("Загрузите ортопантомограмму.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const result = await studiesApi.process(file.name, []);
-      const nextPatient: DoctorPatientRecord = {
-        id: `patient-${Date.now()}`,
-        fullName: fullName.trim(),
-        birthDate,
-        phone,
-        status: result.analysis.result.status === "rejected" ? "Снимок отклонен" : "Снимок загружен",
-        studyFileName: file.name,
-      };
-      setPatients((current) => {
-        const nextPatients = [nextPatient, ...current];
-        saveDoctorPatients(nextPatients);
-        return nextPatients;
-      });
-      setFullName("");
-      setBirthDate("");
-      setPhone("+7");
-      setFile(null);
-      setFormSuccess("Пациент зарегистрирован, ортопантомограмма загружена.");
-      setIsNewPatientOpen(false);
-    } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Не удалось зарегистрировать пациента.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  function openNewPatientModal() {
+    setNewPatientLastName("");
+    setNewPatientFirstName("");
+    setNewPatientMiddleName("");
+    setNewPatientBirthDate("");
+    setNewPatientPhone("+7");
+    setNewPatientEmail("");
+    setNewPatientError("");
+    setIsNewPatientOpen(true);
   }
 
-  async function uploadPatientStudy(event: FormEvent) {
+  async function startNewPatientFlow(event: FormEvent) {
     event.preventDefault();
-    if (!selectedPatient) {
-      return;
-    }
-    setUploadError("");
-    setUploadSuccess("");
+    if (!newPatientLastName.trim()) return setNewPatientError("Введите фамилию пациента.");
+    if (!newPatientFirstName.trim()) return setNewPatientError("Введите имя пациента.");
+    if (!newPatientBirthDate) return setNewPatientError("Укажите дату рождения пациента.");
+    if (newPatientPhone.replace(/\D/g, "").length < 11) return setNewPatientError("Введите номер телефона пациента.");
 
-    if (!uploadFile) {
-      setUploadError("Выберите снимок для загрузки.");
-      return;
-    }
+    const fullName = [newPatientLastName.trim(), newPatientFirstName.trim(), newPatientMiddleName.trim()].filter(Boolean).join(" ");
 
-    setIsUploading(true);
+    setIsCreatingPatient(true);
+    setNewPatientError("");
+
     try {
-      const result = await studiesApi.process(uploadFile.name, []);
-      setPatients((current) => {
-        const nextPatients = current.map((patient) =>
-          patient.id === selectedPatient.id
-            ? {
-                ...patient,
-                studyFileName: uploadFile.name,
-                status: result.analysis.result.status === "rejected" ? "Снимок отклонен" : "Снимок загружен",
-              }
-            : patient,
-        );
-        saveDoctorPatients(nextPatients);
-        return nextPatients;
+      const createdPatient = await doctorApi.createPatient({
+        full_name: fullName,
+        birth_date: newPatientBirthDate,
+        phone: newPatientPhone,
+        email: newPatientEmail.trim() || null,
       });
-      setUploadSuccess("Снимок загружен.");
-      setUploadFile(null);
-      setIsUploadOpen(false);
-    } catch (error) {
-      setUploadError(error instanceof Error ? error.message : "Не удалось загрузить снимок.");
+
+      setPatients((current) => [
+        {
+          id: createdPatient.id,
+          fullName: createdPatient.full_name,
+          birthDate: createdPatient.birth_date,
+          phone: createdPatient.phone,
+          email: createdPatient.email ?? null,
+          status: "Активен",
+          latestComment: null,
+          latestCommentAuthor: null,
+          studyFileName: null,
+          studyUploadedAt: null,
+          studyProcessedAt: null,
+        },
+        ...current,
+      ]);
+      setIsNewPatientOpen(false);
+      navigate(`/doctor/intake/${createdPatient.id}`);
+    } catch (caughtError) {
+      setNewPatientError(caughtError instanceof Error ? caughtError.message : "Не удалось сохранить пациента.");
     } finally {
-      setIsUploading(false);
+      setIsCreatingPatient(false);
     }
   }
 
   return (
-    <div className="grid">
+    <div className="grid doctor-dashboard">
       <section className="card hero">
         <span className="badge">{doctorBadge}</span>
         <h1>{doctorTitle}</h1>
       </section>
 
-      <section className="card">
+      <section className="card patient-list-card">
         <div className="section-header">
           <div className="section-heading">
             <h3>Список пациентов</h3>
             <p className="muted">Поиск по ФИО</p>
           </div>
-          <button
-            type="button"
-            className="button"
-            onClick={() => {
-              setFormError("");
-              setFormSuccess("");
-              setIsNewPatientOpen(true);
-            }}
-          >
+          <button type="button" className="button" onClick={openNewPatientModal}>
             Новый пациент
           </button>
         </div>
 
-        <input
-          className="input"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Поиск по ФИО"
-        />
+        <input className="input" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Поиск по ФИО" />
 
         <div className="stack-list">
           {filteredPatients.length ? (
@@ -232,27 +170,13 @@ export function DoctorDashboard() {
                 </div>
                 <div className="patient-comment">
                   <span className="muted patient-comment-label">Последний комментарий</span>
-                  <span>{patient.comments?.length ? patient.comments[patient.comments.length - 1] : "Комментариев пока нет"}</span>
+                  <span>{patient.latestComment || "Комментариев пока нет"}</span>
                 </div>
                 <div className="patient-actions">
-                  <button
-                    type="button"
-                    className="button secondary patient-action-button"
-                    onClick={() => navigate(`/doctor/patients/${patient.id}`)}
-                  >
+                  <button type="button" className="button secondary patient-action-button" onClick={() => navigate(`/doctor/patients/${patient.id}`)}>
                     История
                   </button>
-                  <button
-                    type="button"
-                    className="button patient-action-button"
-                    onClick={() => {
-                      setSelectedPatient(patient);
-                      setUploadFile(null);
-                      setUploadError("");
-                      setUploadSuccess("");
-                      setIsUploadOpen(true);
-                    }}
-                  >
+                  <button type="button" className="button patient-action-button" onClick={() => navigate(`/doctor/intake/${patient.id}`)}>
                     Загрузить снимок
                   </button>
                 </div>
@@ -269,84 +193,43 @@ export function DoctorDashboard() {
           <section className="settings-modal" onClick={(event) => event.stopPropagation()}>
             <div className="settings-header">
               <h2>Новый пациент</h2>
-              <button
-                type="button"
-                className="icon-button"
-                aria-label="Закрыть"
-                onClick={() => setIsNewPatientOpen(false)}
-              >
+              <button type="button" className="icon-button" aria-label="Закрыть" onClick={() => setIsNewPatientOpen(false)}>
                 <span className="modal-close" aria-hidden="true">
-                  ×
+                  x
                 </span>
               </button>
             </div>
 
-            <form className="form" onSubmit={registerPatient}>
-              <input
-                className="input"
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-                placeholder="ФИО пациента"
-              />
-              <input className="input" type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} />
-              <input
-                className="input"
-                value={phone}
-                onChange={(event) => setPhone(formatPatientPhone(event.target.value))}
-                placeholder="Номер телефона"
-              />
-              <label className="upload-field">
-                <span className="upload-label">{file ? file.name : "Загрузить ортопантомограмму"}</span>
-                <input
-                  className="upload-input"
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.webp,.pdf"
-                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                />
+            <form className="form" onSubmit={startNewPatientFlow}>
+              <label className="field-group">
+                <span className="field-label">Фамилия *</span>
+                <input className="input" value={newPatientLastName} onChange={(event) => { setNewPatientLastName(event.target.value); setNewPatientError(""); }} placeholder="Введите фамилию" />
               </label>
-              <button className="button" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Сохранение..." : "Зарегистрировать пациента"}
-              </button>
-              {formError ? <div className="form-error">{formError}</div> : null}
-              {formSuccess ? <div className="form-success">{formSuccess}</div> : null}
-            </form>
-          </section>
-        </div>
-      ) : null}
-
-      {isUploadOpen && selectedPatient ? (
-        <div className="modal-backdrop" onClick={() => setIsUploadOpen(false)}>
-          <section className="settings-modal" onClick={(event) => event.stopPropagation()}>
-            <div className="settings-header">
-              <h2>Загрузить снимок</h2>
-              <button
-                type="button"
-                className="icon-button"
-                aria-label="Закрыть"
-                onClick={() => setIsUploadOpen(false)}
-              >
-                <span className="modal-close" aria-hidden="true">
-                  ×
-                </span>
-              </button>
-            </div>
-
-            <p className="muted">{selectedPatient.fullName}</p>
-            <form className="form" onSubmit={uploadPatientStudy}>
-              <label className="upload-field">
-                <span className="upload-label">{uploadFile ? uploadFile.name : "Выбрать снимок"}</span>
-                <input
-                  className="upload-input"
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.webp,.pdf"
-                  onChange={(event) => setUploadFile(event.target.files?.[0] ?? null)}
-                />
+              <label className="field-group">
+                <span className="field-label">Имя *</span>
+                <input className="input" value={newPatientFirstName} onChange={(event) => { setNewPatientFirstName(event.target.value); setNewPatientError(""); }} placeholder="Введите имя" />
               </label>
-              <button className="button" type="submit" disabled={isUploading}>
-                {isUploading ? "Загрузка..." : "Загрузить снимок"}
+              <label className="field-group">
+                <span className="field-label">Отчество</span>
+                <input className="input" value={newPatientMiddleName} onChange={(event) => { setNewPatientMiddleName(event.target.value); setNewPatientError(""); }} placeholder="Введите отчество при наличии" />
+              </label>
+              <label className="field-group">
+                <span className="field-label">Дата рождения *</span>
+                <input className="input" type="date" value={newPatientBirthDate} onChange={(event) => { setNewPatientBirthDate(event.target.value); setNewPatientError(""); }} />
+              </label>
+              <label className="field-group">
+                <span className="field-label">Номер телефона *</span>
+                <input className="input" value={newPatientPhone} onChange={(event) => { setNewPatientPhone(formatPatientPhone(event.target.value)); setNewPatientError(""); }} placeholder="+7 (___) ___-__-__" />
+              </label>
+              <label className="field-group">
+                <span className="field-label">Почта</span>
+                <input className="input" type="email" value={newPatientEmail} onChange={(event) => { setNewPatientEmail(event.target.value); setNewPatientError(""); }} placeholder="example@mail.ru" />
+              </label>
+              <p className="muted form-hint">Поля, отмеченные *, обязательны. Отчество и почта заполняются при наличии.</p>
+              <button type="submit" className="button" disabled={isCreatingPatient}>
+                {isCreatingPatient ? "Сохраняем..." : "Продолжить"}
               </button>
-              {uploadError ? <div className="form-error">{uploadError}</div> : null}
-              {uploadSuccess ? <div className="form-success">{uploadSuccess}</div> : null}
+              {newPatientError ? <div className="form-error">{newPatientError}</div> : null}
             </form>
           </section>
         </div>

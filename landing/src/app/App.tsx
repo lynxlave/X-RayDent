@@ -5,16 +5,27 @@ import { TrustBadges } from './components/TrustBadges';
 import { HowItWorks } from './components/HowItWorks';
 import { ClinicValue } from './components/ClinicValue';
 import { AIInterface } from './components/AIInterface';
+import { PricingSection } from './components/PricingSection';
+import { Partners } from './components/Partners';
 import { Footer } from './components/Footer';
 import { ContactForm } from './components/ContactForm';
+import { PatientRegistrationForm } from './components/PatientRegistrationForm';
 
 export default function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+  const [isPatientFormOpen, setIsPatientFormOpen] = useState(false);
 
   useEffect(() => {
     const handleOpenForm = () => setIsContactFormOpen(true);
+    const handleOpenPatientForm = () => setIsPatientFormOpen(true);
+    
     window.addEventListener('openContactForm', handleOpenForm);
-    return () => window.removeEventListener('openContactForm', handleOpenForm);
+    window.addEventListener('openPatientForm', handleOpenPatientForm);
+    
+    return () => {
+      window.removeEventListener('openContactForm', handleOpenForm);
+      window.removeEventListener('openPatientForm', handleOpenPatientForm);
+    };
   }, []);
 
   return (
@@ -28,6 +39,8 @@ export default function App() {
         <HowItWorks />
         <AIInterface />
         <ClinicValue />
+        <PricingSection />
+        <Partners />
       </main>
 
       <Footer />
@@ -35,6 +48,11 @@ export default function App() {
       <ContactForm 
         isOpen={isContactFormOpen} 
         onClose={() => setIsContactFormOpen(false)} 
+      />
+      
+      <PatientRegistrationForm 
+        isOpen={isPatientFormOpen} 
+        onClose={() => setIsPatientFormOpen(false)} 
       />
     </div>
   );

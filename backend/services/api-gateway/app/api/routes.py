@@ -88,6 +88,11 @@ async def doctor_patients():
     return await forward("GET", settings.doctor_service_url, "/doctors/patients")
 
 
+@router.post("/api/doctors/patients")
+async def doctor_create_patient(payload: dict):
+    return await forward("POST", settings.doctor_service_url, "/doctors/patients", payload)
+
+
 @router.get("/api/doctors/patients/{patient_id}")
 async def doctor_patient_card(patient_id: str):
     return await forward("GET", settings.doctor_service_url, f"/doctors/patients/{patient_id}")
@@ -96,6 +101,16 @@ async def doctor_patient_card(patient_id: str):
 @router.post("/api/doctors/patients/{patient_id}/comments")
 async def doctor_comment(patient_id: str, payload: dict):
     return await forward("POST", settings.doctor_service_url, f"/doctors/patients/{patient_id}/comments", payload)
+
+
+@router.post("/api/doctors/patients/{patient_id}/study-events")
+async def doctor_study_event(patient_id: str, payload: dict):
+    return await forward("POST", settings.doctor_service_url, f"/doctors/patients/{patient_id}/study-events", payload)
+
+
+@router.post("/api/doctors/patients/{patient_id}/feedback")
+async def doctor_feedback(patient_id: str, payload: dict):
+    return await forward("POST", settings.doctor_service_url, f"/doctors/patients/{patient_id}/feedback", payload)
 
 
 @router.get("/api/admin/clinic")

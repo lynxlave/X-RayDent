@@ -7,6 +7,7 @@ export type Session = {
   role: Role;
   user_id: string;
   full_name?: string | null;
+  phone?: string | null;
   specialty?: DoctorSpecialty | null;
   username?: string | null;
 };

@@ -1,5 +1,7 @@
 import { Play } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { NeonButton } from "./ui/NeonButton";
+import heroImage from "@/assets/9742bc59b87c53901b6ff0067959b04f4a2a99a1.png";
 
 export function HeroSection() {
   return (
@@ -49,20 +51,19 @@ export function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4">
-              <button
+              <NeonButton
                 onClick={() =>
                   window.dispatchEvent(
                     new CustomEvent("openContactForm"),
                   )
                 }
-                className="group relative px-8 py-4 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00E5FF]/50"
+                variant="primary"
+                size="lg"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#00E5FF] to-[#00B8D4]" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#00E5FF] to-[#7B61FF] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative z-10 font-semibold text-white flex items-center gap-2">
-                  Оставить заявку
+                <span className="font-semibold text-white flex items-center gap-2">
+                  Подключить клинику
                   <svg
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                    className="w-5 h-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -75,26 +76,56 @@ export function HeroSection() {
                     />
                   </svg>
                 </span>
-              </button>
+              </NeonButton>
 
-              <button className="group px-8 py-4 rounded-2xl border-2 border-[#0B3C5D]/20 hover:border-[#00E5FF] transition-all duration-300 hover:shadow-lg hover:shadow-[#00E5FF]/20 bg-white/50 backdrop-blur-sm">
+              <NeonButton
+                onClick={() => window.dispatchEvent(new CustomEvent('openPatientForm'))}
+                variant="primary"
+                size="lg"
+              >
+                <span className="font-semibold text-white flex items-center gap-2">
+                  Регистрация пациентам
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                </span>
+              </NeonButton>
+
+              <NeonButton
+                onClick={() => {
+                  const element = document.getElementById("how-it-works");
+                  element?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                variant="secondary"
+                size="lg"
+              >
                 <span className="font-semibold text-[#0B3C5D] flex items-center gap-2">
-                  <Play className="w-5 h-5 group-hover:text-[#00E5FF] transition-colors" />
+                  <Play className="w-5 h-5 text-[#00E5FF]" />
                   Посмотреть как это работает
                 </span>
-              </button>
+              </NeonButton>
             </div>
           </div>
 
           {/* Right - Hero Image */}
-          <div className="relative lg:h-[600px] order-first lg:order-last">
+          <div className="relative order-first lg:order-last">
             {/* Glowing background effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#00E5FF]/20 to-[#7B61FF]/20 rounded-3xl blur-3xl" />
 
             <div className="relative h-full rounded-3xl overflow-hidden border border-[#00E5FF]/20 shadow-2xl shadow-[#0B3C5D]/10">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1657470179441-c69861f0f748?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZW50aXN0JTIwY29tcHV0ZXIlMjBkZW50YWwlMjB4cmF5JTIwbW9kZXJuJTIwY2xpbmljfGVufDF8fHx8MTc3MjIwMDM2MXww&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="Стоматолог работает с AI-анализом"
+                src={heroImage}
+                alt="Стоматологи работают с AI-анализом"
                 className="w-full h-full object-cover"
               />
 
@@ -102,17 +133,17 @@ export function HeroSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0B3C5D]/80 via-transparent to-transparent" />
 
               {/* AI Analysis Badge */}
-              <div className="absolute bottom-6 left-6 right-6 p-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20">
-                <div className="flex items-center gap-3 mb-3">
+              <div className="absolute bottom-6 left-6 w-[160px] px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20">
+                {/* <div className="flex items-center gap-3 mb-3">
                   <div className="w-3 h-3 rounded-full bg-[#00E5FF] animate-pulse shadow-lg shadow-[#00E5FF]/50" />
                   <span className="text-white font-semibold">
-                    AI-анализ завершён
+                    ИИ-анализ завершён
                   </span>
-                </div>
+                </div> */}
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <div className="text-white/60 mb-1">
-                      Время анализа
+                      Время
                     </div>
                     <div className="text-[#00E5FF] font-bold text-xl">
                       1:47
@@ -122,7 +153,7 @@ export function HeroSection() {
                     <div className="text-white/60 mb-1">
                       Точность
                     </div>
-                    <div className="text-[#7B61FF] font-bold text-xl">
+                    <div className="text-[#00E5FF] font-bold text-xl">
                       96%
                     </div>
                   </div>
