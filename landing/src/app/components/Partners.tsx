@@ -4,7 +4,7 @@ export function Partners() {
   const partners = [
     {
       icon: Award,
-      name: "Московский физико-технический институт",
+      name: "Московский физико-технический институт (национальный исследовательский университет)",
       shortName: "МФТИ",
       description: "Разработка ИИ-алгоритмов",
       color: "from-[#7B61FF] to-[#5E4FD6]",
@@ -166,8 +166,8 @@ export function Partners() {
         <div className="mt-16 text-center">
           <div className="inline-block max-w-3xl p-8 rounded-3xl bg-gradient-to-br from-[#0B3C5D]/5 to-[#7B61FF]/5 border border-[#00E5FF]/20">
             <p className="text-[#0B3C5D]/80 leading-relaxed">
-              <span className="font-semibold text-[#0B3C5D]">X-РайДент</span> разработан при участии ведущих медицинских и технических специалистов. 
-              Наши AI-алгоритмы прошли научную валидацию и соответствуют высочайшим стандартам качества.
+              <span className="font-semibold text-[#0B3C5D]">X-РайДент</span> разработан при участии медицинских и технических специалистов. 
+              Наши ИИ-алгоритмы прошли научную валидацию и соответствуют современным стандартам качества.
             </p>
           </div>
         </div>
