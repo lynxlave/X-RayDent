@@ -6,6 +6,14 @@ import heroImage from "@/assets/9742bc59b87c53901b6ff0067959b04f4a2a99a1.png";
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
+      <style>{`
+        .hero-dark-secondary.neon-btn-secondary .neon-btn-inner {
+          background: linear-gradient(135deg, rgba(11, 60, 93, 0.92) 0%, rgba(22, 33, 62, 0.9) 55%, rgba(67, 56, 202, 0.82) 100%);
+        }
+        .hero-dark-secondary.neon-btn-secondary:hover .neon-btn-inner {
+          background: linear-gradient(135deg, rgba(11, 60, 93, 0.98) 0%, rgba(22, 33, 62, 0.94) 55%, rgba(67, 56, 202, 0.88) 100%);
+        }
+      `}</style>
       <div className="absolute inset-0 bg-gradient-to-br from-[#0B3C5D]/5 via-white to-[#7B61FF]/5" />
 
       <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32">
@@ -99,7 +107,7 @@ export function HeroSection() {
                   }}
                   variant="secondary"
                   size="lg"
-                  className="w-full"
+                  className="w-full hero-dark-secondary"
                 >
                   <span className="font-semibold text-white flex items-center justify-center gap-2 text-center">
                     <Play className="w-5 h-5 text-[#00E5FF] shrink-0" />
