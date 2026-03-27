@@ -1,0 +1,9 @@
+node_modules
+dist
+.npm-cache
+.vite
+coverage
+tests
+playwright-report
+test-results
+*.log

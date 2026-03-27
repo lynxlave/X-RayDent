@@ -1,10 +1,10 @@
 FROM python:3.11-slim
 
+RUN pip install --no-cache-dir fastapi uvicorn[standard] pydantic pydantic-settings httpx
+
 WORKDIR /workspace/backend/services/report-service
 
-COPY backend /workspace/backend
-
-RUN pip install --no-cache-dir fastapi uvicorn[standard] pydantic pydantic-settings httpx
+COPY . /workspace/backend
 
 ENV PYTHONPATH=/workspace
 

@@ -1,5 +1,6 @@
 import { NeonButton } from "./ui/NeonButton";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import toothImage from "@/assets/tooth.jpg";
 
 export function Navigation() {
   const { protocol, hostname } = window.location;
@@ -18,11 +19,11 @@ export function Navigation() {
           <div className="flex items-center gap-3">
             <div className="relative w-12 h-12">
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#00E5FF] via-[#7B61FF] to-[#00E5FF] opacity-20 blur-sm" />
-              <div className="relative w-full h-full rounded-full overflow-hidden bg-white shadow-lg ring-2 ring-gradient-to-br from-[#00E5FF]/40 to-[#7B61FF]/40">
+              <div className="relative w-full h-full rounded-full overflow-hidden bg-white shadow-lg">
                 <ImageWithFallback
-                  src="https://i.ibb.co/7WBvSYG/dJ5MNHGd.png"
+                  src={toothImage}
                   alt="X-RayDent логотип"
-                  className="w-full h-full object-contain p-1"
+                  className="w-full h-full object-cover scale-100"
                 />
               </div>
             </div>
