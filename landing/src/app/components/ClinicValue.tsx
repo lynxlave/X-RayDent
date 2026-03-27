@@ -56,8 +56,6 @@ export function ClinicValue() {
 
   return (
     <section id="benefits" className="relative py-24">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0B3C5D]/5 via-[#7B61FF]/5 to-[#00E5FF]/5" />
-
       <style>{`
         @keyframes benefitEntrance {
           0%   { box-shadow: 0 0 0px rgba(0,229,255,0), 0 0 0px rgba(123,97,255,0); opacity: 0.6; }

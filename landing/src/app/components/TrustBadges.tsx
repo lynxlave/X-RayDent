@@ -29,7 +29,7 @@ export function TrustBadges() {
   ];
 
   return (
-    <section className="relative py-12 bg-gradient-to-b from-white to-[#0B3C5D]/5">
+    <section className="relative py-12">
       <style>{`
         @keyframes badgeEntrance {
           0%   { box-shadow: 0 0 0px rgba(0,229,255,0), 0 0 0px rgba(123,97,255,0); opacity: 0.6; }

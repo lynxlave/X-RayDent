@@ -12,8 +12,6 @@ export function AIInterface() {
       id="technology"
       className="relative py-24 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-[#0B3C5D]/5 to-white" />
-
       <div className="relative max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold text-[#0B3C5D] mb-4">

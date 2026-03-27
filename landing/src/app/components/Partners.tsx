@@ -36,10 +36,6 @@ export function Partners() {
 
   return (
     <section id="partners" className="relative py-24 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-[#7B61FF]/5 to-white" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#00E5FF]/5 rounded-full blur-3xl" />
-
       <style>{`
         @keyframes partnerEntrance {
           0%   { box-shadow: 0 0 0px rgba(0,229,255,0), 0 0 0px rgba(123,97,255,0); opacity: 0.6; transform: translateY(20px); }

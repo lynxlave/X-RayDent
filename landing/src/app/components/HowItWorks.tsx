@@ -39,11 +39,6 @@ export function HowItWorks() {
 
   return (
     <section id="how-it-works" className="relative py-24 overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0B3C5D]/5 via-white to-[#7B61FF]/5" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#00E5FF]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#7B61FF]/10 rounded-full blur-3xl" />
-
       <style>{`
         @keyframes stepEntrance {
           0%   { box-shadow: 0 0 0px rgba(0,229,255,0), 0 0 0px rgba(123,97,255,0); opacity: 0.6; }

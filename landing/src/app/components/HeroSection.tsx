@@ -14,8 +14,6 @@ export function HeroSection() {
           background: linear-gradient(135deg, rgba(11, 60, 93, 0.98) 0%, rgba(22, 33, 62, 0.94) 55%, rgba(67, 56, 202, 0.88) 100%);
         }
       `}</style>
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0B3C5D]/5 via-white to-[#7B61FF]/5" />
-
       <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="space-y-8 z-10">
