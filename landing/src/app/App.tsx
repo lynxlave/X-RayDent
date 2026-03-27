@@ -29,11 +29,11 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white font-['Inter',sans-serif]">
+    <div className="min-h-screen font-['Inter',sans-serif] bg-[linear-gradient(135deg,rgba(11,60,93,0.06)_0%,rgba(255,255,255,0.94)_38%,rgba(123,97,255,0.08)_72%,rgba(0,229,255,0.08)_100%)] bg-fixed">
       <Navigation />
       
       {/* Add top padding to account for fixed navigation */}
-      <main className="pt-20">
+      <main className="pt-20 relative z-10">
         <HeroSection />
         <TrustBadges />
         <HowItWorks />

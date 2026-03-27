@@ -29,7 +29,7 @@ export function TrustBadges() {
   ];
 
   return (
-    <section className="relative py-12 bg-gradient-to-b from-white to-[#0B3C5D]/5">
+    <section className="relative py-12">
       <style>{`
         @keyframes badgeEntrance {
           0%   { box-shadow: 0 0 0px rgba(0,229,255,0), 0 0 0px rgba(123,97,255,0); opacity: 0.6; }
@@ -85,14 +85,12 @@ export function TrustBadges() {
               }}
             >
               <div className="neon-badge-inner p-6">
-                <div className="relative flex flex-col">
-                  {/* Text content on top */}
-                  <p className="font-medium text-[#0B3C5D] leading-relaxed pr-14 mb-8">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="font-medium text-[#0B3C5D] leading-relaxed">
                     {badge.title}
                   </p>
-                  
-                  {/* Icon in bottom-right */}
-                  <div className="absolute bottom-0 right-0">
+
+                  <div className="shrink-0">
                     <div
                       className={`w-12 h-12 rounded-xl bg-gradient-to-br ${badge.color} p-[2px]`}
                       style={{

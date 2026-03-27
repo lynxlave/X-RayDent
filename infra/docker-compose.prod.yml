@@ -18,14 +18,14 @@ services:
 
   landing:
     build:
-      context: ..
-      dockerfile: landing/Dockerfile.prod
+      context: ../landing
+      dockerfile: Dockerfile.prod
     restart: unless-stopped
 
   frontend:
     build:
-      context: ..
-      dockerfile: front-end/Dockerfile.prod
+      context: ../front-end
+      dockerfile: Dockerfile.prod
       args:
         VITE_API_URL: ${VITE_API_URL:-https://api.x-raydent.ru}
     restart: unless-stopped
@@ -34,8 +34,8 @@ services:
 
   api-gateway:
     build:
-      context: ..
-      dockerfile: backend/services/api-gateway/Dockerfile
+      context: ../backend
+      dockerfile: services/api-gateway/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -56,8 +56,8 @@ services:
 
   auth-service:
     build:
-      context: ..
-      dockerfile: backend/services/auth-service/Dockerfile
+      context: ../backend
+      dockerfile: services/auth-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -69,8 +69,8 @@ services:
 
   patient-service:
     build:
-      context: ..
-      dockerfile: backend/services/patient-service/Dockerfile
+      context: ../backend
+      dockerfile: services/patient-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -80,8 +80,8 @@ services:
 
   doctor-service:
     build:
-      context: ..
-      dockerfile: backend/services/doctor-service/Dockerfile
+      context: ../backend
+      dockerfile: services/doctor-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -93,8 +93,8 @@ services:
 
   clinic-admin-service:
     build:
-      context: ..
-      dockerfile: backend/services/clinic-admin-service/Dockerfile
+      context: ../backend
+      dockerfile: services/clinic-admin-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -104,8 +104,8 @@ services:
 
   imaging-service:
     build:
-      context: ..
-      dockerfile: backend/services/imaging-service/Dockerfile
+      context: ../backend
+      dockerfile: services/imaging-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -115,8 +115,8 @@ services:
 
   analysis-service:
     build:
-      context: ..
-      dockerfile: backend/services/analysis-service/Dockerfile
+      context: ../backend
+      dockerfile: services/analysis-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -126,8 +126,8 @@ services:
 
   report-service:
     build:
-      context: ..
-      dockerfile: backend/services/report-service/Dockerfile
+      context: ../backend
+      dockerfile: services/report-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}
@@ -137,8 +137,8 @@ services:
 
   notification-service:
     build:
-      context: ..
-      dockerfile: backend/services/notification-service/Dockerfile
+      context: ../backend
+      dockerfile: services/notification-service/Dockerfile
     restart: unless-stopped
     env_file:
       - ${APP_ENV_FILE:-../.env}

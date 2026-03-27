@@ -1,5 +1,6 @@
 import { Mail, Phone, MapPin } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import toothImage from "@/assets/tooth.jpg";
 
 export function Footer() {
   return (
@@ -7,35 +8,27 @@ export function Footer() {
       id="contact"
       className="relative bg-gradient-to-br from-[#0B3C5D] to-[#0B3C5D]/90 text-white pt-16 pb-8 overflow-hidden"
     >
-      {/* Background pattern */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20" />
 
       <div className="relative max-w-7xl mx-auto px-6">
-        {/* Main Footer Content */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
-          {/* Brand Column */}
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center gap-3">
               <div className="relative w-12 h-12">
-                {/* Neon glow ring */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#00E5FF] via-[#7B61FF] to-[#00E5FF] opacity-30 blur-md" />
-                {/* Logo container */}
-                <div className="relative w-full h-full rounded-full overflow-hidden bg-white shadow-lg shadow-[#00E5FF]/20 ring-2 ring-[#00E5FF]/50">
+                <div className="relative w-full h-full rounded-full overflow-hidden bg-white shadow-lg shadow-[#00E5FF]/20">
                   <ImageWithFallback
-                    src="https://i.ibb.co/7WBvSYG/dJ5MNHGd.png"
-                    alt="X-РайДент логотип"
-                    className="w-full h-full object-contain p-1"
+                    src={toothImage}
+                    alt="X-RayDent логотип"
+                    className="w-full h-full object-cover scale-100"
                   />
                 </div>
               </div>
-              <span className="text-2xl font-bold">
-                X-РайДент
-              </span>
+              <span className="text-2xl font-bold">X-RayDent</span>
             </div>
             <p className="text-white/70 leading-relaxed max-w-lg">
-              ИИ-ассистент для стоматологов. Автоматический
-              анализ ортопантомограмм с точностью 96% за 2
-              минуты
+              ИИ-ассистент для стоматологов. Автоматический анализ ортопантомограмм
+              с точностью 96% за 2 минуты
             </p>
             <div className="flex gap-4 pt-2">
               <button className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 transition-all duration-300 flex items-center justify-center group">
@@ -68,11 +61,8 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Contact Column */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-lg mb-6">
-              Контакты
-            </h4>
+            <h4 className="font-semibold text-lg mb-6">Контакты</h4>
             <div className="space-y-3">
               <a
                 href="tel:+7"
@@ -95,79 +85,52 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Links Column */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-lg mb-6">
-              Компания
-            </h4>
+            <h4 className="font-semibold text-lg mb-6">Компания</h4>
             <div className="space-y-3">
-              <a
-                href="#"
-                className="block text-white/70 hover:text-[#00E5FF] transition-colors"
-              >
+              <a href="#" className="block text-white/70 hover:text-[#00E5FF] transition-colors">
                 Как это работает
               </a>
-              <a
-                href="#"
-                className="block text-white/70 hover:text-[#00E5FF] transition-colors"
-              >
+              <a href="#" className="block text-white/70 hover:text-[#00E5FF] transition-colors">
                 Преимущества
               </a>
-              <a
-                href="#"
-                className="block text-white/70 hover:text-[#00E5FF] transition-colors"
-              >
+              <a href="#" className="block text-white/70 hover:text-[#00E5FF] transition-colors">
                 Технология
               </a>
-              <a
-                href="#"
-                className="block text-white/70 hover:text-[#00E5FF] transition-colors"
-              >
+              <a href="#" className="block text-white/70 hover:text-[#00E5FF] transition-colors">
                 Контакты
               </a>
             </div>
           </div>
 
-          {/* QR Code Column */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-lg mb-6">
-              Быстрый доступ
-            </h4>
+            <h4 className="font-semibold text-lg mb-6">Быстрый доступ</h4>
             <div className="relative group">
-              {/* QR Code Container with neon effect */}
               <div className="relative p-4 rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-[#00E5FF]/30 hover:border-[#00E5FF]/60 transition-all duration-300 shadow-lg shadow-[#00E5FF]/20 hover:shadow-[#00E5FF]/40">
                 <img
                   src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://x-raydent.ru"
-                  alt="QR код X-РайДент"
+                  alt="QR код X-RayDent"
                   className="w-full h-auto rounded-lg"
                 />
-                {/* Glow effect on hover */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#00E5FF]/20 to-[#7B61FF]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl -z-10" />
               </div>
               <p className="text-xs text-white/60 text-center mt-3">
-                Наведите камеру телефона<br />для быстрого доступа
+                Наведите камеру телефона
+                <br />
+                для быстрого доступа
               </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/60 text-sm">
-              © 2026 X-РайДент. Все права защищены.
-            </p>
+            <p className="text-white/60 text-sm">© 2026 X-RayDent. Все права защищены.</p>
             <div className="flex gap-6 text-sm">
-              <a
-                href="#"
-                className="text-white/60 hover:text-[#00E5FF] transition-colors"
-              >
+              <a href="#" className="text-white/60 hover:text-[#00E5FF] transition-colors">
                 Политика конфиденциальности
               </a>
-              <a
-                href="#"
-                className="text-white/60 hover:text-[#00E5FF] transition-colors"
-              >
+              <a href="#" className="text-white/60 hover:text-[#00E5FF] transition-colors">
                 Условия использования
               </a>
             </div>

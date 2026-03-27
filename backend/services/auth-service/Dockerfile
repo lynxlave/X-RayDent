@@ -1,10 +1,10 @@
 FROM python:3.11-slim
 
+RUN pip install --no-cache-dir fastapi uvicorn[standard] pydantic pydantic-settings httpx sqlalchemy "psycopg[binary]"
+
 WORKDIR /workspace/backend/services/auth-service
 
-COPY backend /workspace/backend
-
-RUN pip install --no-cache-dir fastapi uvicorn[standard] pydantic pydantic-settings httpx sqlalchemy "psycopg[binary]"
+COPY . /workspace/backend
 
 ENV PYTHONPATH=/workspace
 

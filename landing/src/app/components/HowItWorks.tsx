@@ -29,7 +29,7 @@ export function HowItWorks() {
       number: "03",
       title: "Получите заключение и рекомендации",
       description:
-        "Используйте готовый отчёт при составлении плана лечения",
+        "Покажите заключения и рекомендации лечащему врачу и составьте совместный план лечения",
       color: "from-[#00E5FF] to-[#7B61FF]",
       glow: "rgba(0,229,255,0.4)",
       glowAlt: "rgba(123,97,255,0.3)",
@@ -39,11 +39,6 @@ export function HowItWorks() {
 
   return (
     <section id="how-it-works" className="relative py-24 overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0B3C5D]/5 via-white to-[#7B61FF]/5" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#00E5FF]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#7B61FF]/10 rounded-full blur-3xl" />
-
       <style>{`
         @keyframes stepEntrance {
           0%   { box-shadow: 0 0 0px rgba(0,229,255,0), 0 0 0px rgba(123,97,255,0); opacity: 0.6; }
@@ -100,9 +95,7 @@ export function HowItWorks() {
           {steps.map((step, index) => (
             <div key={index} className="relative group">
               {/* Connection line */}
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-24 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-[#00E5FF]/40 to-transparent z-10" />
-              )}
+              <div className="hidden lg:block absolute top-24 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-[#00E5FF]/40 to-transparent z-10" />
 
               <div
                 className="neon-step-wrap h-full"
@@ -133,7 +126,7 @@ export function HowItWorks() {
                     </div>
 
                     {/* Icon in bottom-right */}
-                    <div className={`absolute right-6 ${index === 2 ? 'bottom-12' : 'bottom-6'}`}>
+                    <div className="absolute right-0 bottom-6">
                       <div
                         className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${step.color} p-[2px]`}
                         style={{ boxShadow: `0 0 14px ${step.glow}` }}
